@@ -4,6 +4,11 @@ title: "A new Octopress Blog"
 date: 2014-01-19 21:08:36 +0000
 comments: true
 categories: 
+    - blogging
+    - markup
+    - markdown
+    - restructuredtext
+
 ---
 
 As a sort of New Year's resolution I have decided to get some of my ideas, projects, notes etc down on virtual paper. Since I do all of my documentation using Markup Languages such as ReStructuredText (my personal favorite) or Markdown (a second favorite), it made sense to look for a system that generated content from markup files. 
