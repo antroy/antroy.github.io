@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Velocity]]></title>
-  <link href="http://antroy.github.io/atom.xml" rel="self"/>
+  <title><![CDATA[Category: Blogging | Velocity]]></title>
+  <link href="http://antroy.github.io/blog/categories/blogging/atom.xml" rel="self"/>
   <link href="http://antroy.github.io/"/>
   <updated>2014-01-19T23:01:03+00:00</updated>
   <id>http://antroy.github.io/</id>
