@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Markdown | Velocity]]></title>
   <link href="http://antroy.github.io/blog/categories/markdown/atom.xml" rel="self"/>
   <link href="http://antroy.github.io/"/>
-  <updated>2014-01-19T23:01:03+00:00</updated>
+  <updated>2014-01-25T13:01:37+00:00</updated>
   <id>http://antroy.github.io/</id>
   <author>
     <name><![CDATA[Anthony Roy]]></name>
@@ -22,7 +22,7 @@
 
 <p>In fact I have a simple website generation system that I use to maintain my father&rsquo;s website that I wrote in Python using templates and ReStructuredText. I love the separation of writing from presentation &ndash; it means that when you are writing you can be focused on the content and not distracted by getting the layout/look and feel etc correct. Formatting the templates can be a completely separate task done at a separate time where you can focus on how the documents look. The two activities benefit from this separation.</p>
 
-<p>With little free time (too usy a family life with 3 kids!), and too many other projects that I would like to spend time on, I didn&rsquo;t want to spend the time on enhancing the Python/ReStructuredText engine to become a blog engine so looked on the net for alternatives. Octopress looked like the ideal solution. Touted as &ldquo;A Blogging Framework for Hackers&rdquo; and supporting Markdown as default, it looks to be exactly what I am looking for. It has certainly proved to be easy to set up and configure. Hopefully you should start to see more posts coming here if it does indeed prove to be as easy to work with as it currently seems!</p>
+<p>With little free time (too busy a family life with 3 kids!), and too many other projects that I would like to spend time on, I didn&rsquo;t want to spend the time on enhancing the Python/ReStructuredText engine to become a blog engine so looked on the net for alternatives. Octopress looked like the ideal solution. Touted as &ldquo;A Blogging Framework for Hackers&rdquo; and supporting Markdown as default, it looks to be exactly what I am looking for. It has certainly proved to be easy to set up and configure. Hopefully you should start to see more posts coming here if it does indeed prove to be as easy to work with as it currently seems!</p>
 ]]></content>
   </entry>
   
