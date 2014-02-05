@@ -34,6 +34,9 @@ This works pretty well. You deploy to each of the machines in your remotes list 
 
 The downside to this approach is if you want to roll back code. It would be nice to be able to roll back the master branch to a particular commit without a horde of messy revert commits. With git you can move the head back to a particular commit easily using ``git reset --hard a4d779c`` for example, or to a tag if you have been tagging your code - ``git reset --hard 1.4.2``.
 
+The Phoenix Script
+------------------
+
 The issue is that git's post-receive hooks don't fire for this sort of change. Nothing is received, hence no hook is fired. A solution to this is to have a post-receive hook which is held outside of the git repo and symlinked in, which performs the following steps when run.
 
 1. Archive off the code to the relevant location as above.
@@ -45,17 +48,33 @@ The issue is that git's post-receive hooks don't fire for this sort of change. N
 The code itself looks like this::
 
     #!/bin/bash
-    rm -rf /etc/puppet/*
-    cd /etc/puppet
-    git archive | tar -xz
-    puppet apply --modulepath /etc/puppet/manifests/site.pp
+    PHEONIX=/var/repos/phoenix.sh
+    PUPPET_DIR=/etc/puppet
+    GIT_REPO=/var/repos/puppet_code
 
-    rm -rf /var/repos/puppet_code
-    mkdir /var/repos/puppet_code
-    cd /var/repos/puppet_code
+    rm -rf $PUPPET_DIR/*
+    cd $GIT_REPO
+    git archive --format=tar master | (cd $PUPPET_DIR; tar -x)
+    puppet apply $PUPPET_DIR/manifests/site.pp
+
+    rm -rf $GIT_REPO
+    mkdir $GIT_REPO
+    cd $GIT_REPO
     git init --bare
-    ln -s /var/repos/phoenix.sh /var/repos/puppet_code/.git/hooks/post-receive
+    ln -s $PHEONIX $GIT_REPO/.git/hooks/post-receive
 
 This has the advantage that whenever you push, the code will get checked out and placed in the appropriate directory, even if no commits have been made, just references (i.e. the master pointer) has been moved.
 
+The main disadvantage to this approach is that you are having to send the entire repo over to each server every time you push. This is not a major issue if your codebase is small, but with a large infrastructure and large puppet deployment this could take quite a lot of time.
 
+Puppet Librarian and R10K
+-------------------------
+
+There are two tools which can mitigate this overhead, and have the advantage of organising your puppet modules in a better way than keeping everything in one repository. This method has three parts.
+
+Firstly, you need to create a git repo for each module in your codebase. This step has several advantages by itself. Teams can work on different modules without treading on each others toes. Modules can be shared on github or the like for other developers to use and enhance.
+
+The second step is to create a Puppetfile which is effectively a shopping list of the modules you are interested in. You tell it which modules you want, their git locations if pulling directly from git (they are downloaded from the Puppetforge otherwise), and which version you want (for git repos this can be any arbitrary commit hash, branch or tag).
+
+You then add a call to r10k from your Phoenix script. r10k reads the puppetfile and will download all modules referenced into your modules directory.
+In practice, the repo that I push to each server isn't the entire puppet codebase, but a small repo which contains a Puppetfile readable by the r10k tool and some hiera configuration. This means that the push always delivers the correct puppetfile and hiera data, but the other modules that are brought in by r10k are cached. See https://github.com/adrienthebo/r10k for more details on r10k and https://github.com/rodjek/librarian-puppet for librarian puppet.
