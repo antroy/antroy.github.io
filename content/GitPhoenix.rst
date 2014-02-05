@@ -8,7 +8,7 @@ The Git Phoenix
 :slug: Git push for code deployment using Puppet
 :author: Anthony Roy
 :summary: A technique for managing a small number of machines using Puppet and git
-:status: draft
+:status: published
 
 Git is a great tool for managing source code, and is very flexible in what you can do with it. Puppet is great for configuration management, and can be used to great effect for automating the provisioning of software onto machines.
 
@@ -19,10 +19,11 @@ Incidentally this also works great for deploying arbitrary code - for example a 
 The typical setup for this is as follows. For each machine you want to deploy to:
 
 1. Set up an empty git repo with ``git init --bare``.
-2. Write a git post-receive hook that will archive the current state of the repos master branch and unpack it in the puppet location, and then run puppet apply::
+2. Write a git post-receive hook that will archive the current state of the repos master branch and unpack it in the puppet location, and then run puppet apply
+   
+::
 
-   cd /etc/puppet
-   git archive | tar -xz
+    git archive --format=tar master | (cd /etc/puppet; tar -x)
 
 On your "master" machine - which with git being distributed can be any machine you happen to be developing on, you need to set up your remote. Add the following to the ``.git/config`` file::
 
@@ -34,10 +35,12 @@ This works pretty well. You deploy to each of the machines in your remotes list 
 
 The downside to this approach is if you want to roll back code. It would be nice to be able to roll back the master branch to a particular commit without a horde of messy revert commits. With git you can move the head back to a particular commit easily using ``git reset --hard a4d779c`` for example, or to a tag if you have been tagging your code - ``git reset --hard 1.4.2``.
 
+The issue is that git's post-receive hooks don't fire for this sort of change. Nothing is received, hence no hook is fired.
+
 The Phoenix Script
 ------------------
 
-The issue is that git's post-receive hooks don't fire for this sort of change. Nothing is received, hence no hook is fired. A solution to this is to have a post-receive hook which is held outside of the git repo and symlinked in, which performs the following steps when run.
+Cue the Pheonix script, a post commit hook that destroys itself before rebuilding itself again from the ashes. It is in essence a post-receive hook which is held outside of the git repo and symlinked in, which performs the following steps when run.
 
 1. Archive off the code to the relevant location as above.
 2. Run puppet.
