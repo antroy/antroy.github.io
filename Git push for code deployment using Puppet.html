@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
         <meta charset="utf-8" />
-        <title>Velocity</title>
+        <title>The Git Phoenix</title>
         <link rel="stylesheet" href="/theme/css/main.css" />
 
         <!--[if IE]>
@@ -14,13 +14,18 @@
         <header id="banner" class="body">
                 <h1><a href="/">Velocity </a></h1>
                 <nav><ul>
-                    <li><a href="/category/programming.html">Programming</a></li>
+                    <li class="active"><a href="/category/programming.html">Programming</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/Git push for code deployment using Puppet.html" rel="bookmark"
+           title="Permalink to The Git Phoenix">The Git Phoenix</a></h1>
+    </header>
 
-            <aside id="featured" class="body">
-                <article>
-                    <h1 class="entry-title"><a href="/Git push for code deployment using Puppet.html">The Git Phoenix</a></h1>
+    <div class="entry-content">
 <footer class="post-info">
         <abbr class="published" title="2014-02-04T08:14:00">
                 Tue 04 February 2014
@@ -31,7 +36,7 @@
         </address>
 <p>In <a href="/category/programming.html">Programming</a>. </p>
 <p>tags: <a href="/tag/git.html">git</a><a href="/tag/coding.html">coding</a><a href="/tag/deployment.html">deployment</a><a href="/tag/puppet.html">puppet</a></p>
-</footer><!-- /.post-info --><p>Git is a great tool for managing source code, and is very flexible in what you can do with it. Puppet is great for configuration management, and can be used to great effect for automating the provisioning of software onto machines.</p>
+</footer><!-- /.post-info -->      <p>Git is a great tool for managing source code, and is very flexible in what you can do with it. Puppet is great for configuration management, and can be used to great effect for automating the provisioning of software onto machines.</p>
 <p>I have been using puppet at work for a year or so now in the automation of server builds in our internal cloud. A few months ago I decided that it would make sense to use it at home to standardise my PC builds and make it easy to make changes to one machine and have that change propagate out to the others. I use git at home for my personal projects (Bitbucket for private stuff, GitHub for stuff I share) and one of the Puppet deployment methods that has come about in the last year or so is the so called Masterless Puppet, where code is pushed to a bunch of machines using git.</p>
 <p>Incidentally this also works great for deploying arbitrary code - for example a website - to a bunch of servers.</p>
 <p>The typical setup for this is as follows. For each machine you want to deploy to:</p>
@@ -90,10 +95,11 @@ ln -s $PHEONIX $GIT_REPO/.git/hooks/post-receive
 <p>You then add a call to r10k from your Phoenix script. r10k reads the puppetfile and will download all modules referenced into your modules directory.
 In practice, the repo that I push to each server isn't the entire puppet codebase, but a small repo which contains a Puppetfile readable by the r10k tool and some hiera configuration. This means that the push always delivers the correct puppetfile and hiera data, but the other modules that are brought in by r10k are cached. See <a class="reference external" href="https://github.com/adrienthebo/r10k">https://github.com/adrienthebo/r10k</a> for more details on r10k and <a class="reference external" href="https://github.com/rodjek/librarian-puppet">https://github.com/rodjek/librarian-puppet</a> for librarian puppet.</p>
 </div>
-                </article>
-            </aside><!-- /#featured -->
-            </ol><!-- /#posts-list -->
-            </section><!-- /#content -->
+
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
         <section id="extras" class="body">
                 <div class="blogroll">
                         <h2>blogroll</h2>
