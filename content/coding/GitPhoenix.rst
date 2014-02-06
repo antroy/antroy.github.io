@@ -28,8 +28,8 @@ The typical setup for this is as follows. For each machine you want to deploy to
 On your "master" machine - which with git being distributed can be any machine you happen to be developing on, you need to set up your remote. Add the following to the ``.git/config`` file::
 
     [remote webservers]
-    blah.balh
-    blah.balh
+        url = ssh://git@server1/puppet
+        url = ssh://git@server2/puppet
 
 This works pretty well. You deploy to each of the machines in your remotes list by simply running ``git push webservers``.
 
