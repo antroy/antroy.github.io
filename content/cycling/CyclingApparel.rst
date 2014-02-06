@@ -1,5 +1,5 @@
-Clothing for the Commute
-========================
+Commuting through the Seasons
+=============================
 
 :date: 2014-01-31 20:25
 :modified: 2014-01-31 20:25
@@ -20,3 +20,25 @@ The difficulty in chosing clothing for the commute is striking a balance between
 - Keeping the luggage as light as possible.
 
 Comfort is important on any commute over say 3 miles uphill or 5 on the flat. Skinny jeans aren't going to cut it, and neither are flip flops. Gloves are a must in the cooler seasons. If you are not wearing cycling clothes and changing at work, you don't want to be getting hot and sweaty or wet with rain. Cycle specific clothing mitigates this to a degree. Cycle shorts or trousers stay comfortable and reasonably warm wet or not. Trousers you'd be comfortable wearing at work, and that you don't have to stuff with socks to retain your dignity, typically get uncomfortable once wet and drag on the thighs as you pedal.
+
+So here are my recommendations for the seasons (or at least temperature bands that might be typical for the seasons in Britain - after all it is the conditions not the *actual* seasons that are important.
+
+Winter (5C - -10C)
+==================
+
+Winter first, since that is where we currently are. 
+
+Trousers
+--------
+
+I find long walking trousers the best for winter. They are comfortable, don't take too long to dry if they get wet, and can be smart enough for work. I personally prefer cargo pants, as part of the commute is on the train, and so they make it convenient to store train tickets and the like.
+
+Base Layer
+----------
+
+I prefer Merino wool as a base layer in the Winter, since it is cold enough that you don't sweat too much, and Merino is very comfortable and smell resistent if you do overheat a bit on the way in...
+
+Mid Layer
+---------
+
+Cycling shirts are about the right weight and 
