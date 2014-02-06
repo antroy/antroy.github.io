@@ -18,7 +18,8 @@ env.cloudfiles_container = 'my_cloudfiles_container'
 
 def clean():
     if os.path.isdir(DEPLOY_PATH):
-        local('rm -rf {deploy_path}'.format(**env))
+        local('rm -rf {deploy_path}/*'.format(**env))
+    else:
         local('mkdir {deploy_path}'.format(**env))
 
 def build():
@@ -41,13 +42,12 @@ def reserve():
 def preview():
     local('pelican -s publishconf.py')
 
-def cf_upload():
+def deploy():
     rebuild()
     local('cd {deploy_path} && '
-          'swift -v -A https://auth.api.rackspacecloud.com/v1.0 '
-          '-U {cloudfiles_username} '
-          '-K {cloudfiles_api_key} '
-          'upload -c {cloudfiles_container} .'.format(**env))
+          'git add * && '
+          'git commit -m "Deploying blog" &&'
+          'git push' .format(**env))
 
 @hosts(production)
 def publish():

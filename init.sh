@@ -1,9 +1,21 @@
 #!/bin/bash
 
-mkdir content
-mkdir output
+if [ ! -d content ]
+then
+    mkdir content
+fi
 
-echo "output" >> .gitignore
+if [ ! -d output ]
+then
+    mkdir output
+fi
+
+grep "^output$" .gitignore
+
+if [ $? != 0 ]
+then
+    echo "output" >> .gitignore
+fi
 
 if [ ! -d output/.git ]
 then
@@ -11,7 +23,7 @@ then
     git init
     git remote add origin git@github.com:antroy/antroy.github.io.git
     git fetch
-    git checkout -b pelican_master
-    git branch --set-upstream-to=origin/pelican_master pelican_master
+    git checkout -b master
+    git branch --set-upstream-to=origin/master master
     popd
 fi
