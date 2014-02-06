@@ -31,7 +31,7 @@ On your "master" machine - which with git being distributed can be any machine y
         url = ssh://git@server1/puppet
         url = ssh://git@server2/puppet
 
-This works pretty well. You deploy to each of the machines in your remotes list by simply running ``git push webservers``.
+This works pretty well. You deploy to each of the machines in your remotes list by simply running ``git push webservers`` and git runs through the list of URLs in the remote and pushes to each.
 
 The downside to this approach is if you want to roll back code. It would be nice to be able to roll back the master branch to a particular commit without a horde of messy revert commits. With git you can move the head back to a particular commit easily using ``git reset --hard a4d779c`` for example, or to a tag if you have been tagging your code - ``git reset --hard 1.4.2``.
 
@@ -80,4 +80,5 @@ Firstly, you need to create a git repo for each module in your codebase. This st
 The second step is to create a Puppetfile which is effectively a shopping list of the modules you are interested in. You tell it which modules you want, their git locations if pulling directly from git (they are downloaded from the Puppetforge otherwise), and which version you want (for git repos this can be any arbitrary commit hash, branch or tag).
 
 You then add a call to r10k from your Phoenix script. r10k reads the puppetfile and will download all modules referenced into your modules directory.
-In practice, the repo that I push to each server isn't the entire puppet codebase, but a small repo which contains a Puppetfile readable by the r10k tool and some hiera configuration. This means that the push always delivers the correct puppetfile and hiera data, but the other modules that are brought in by r10k are cached. See https://github.com/adrienthebo/r10k for more details on r10k and https://github.com/rodjek/librarian-puppet for librarian puppet.
+
+The net effect of this is that the repo that I push to each server isn't the entire puppet codebase, but a small repo which contains a Puppetfile readable by the r10k tool and some hiera configuration. This means that the push always delivers the correct puppetfile and hiera data, but the other modules that are brought in by r10k are cached. See https://github.com/adrienthebo/r10k for more details on r10k and https://github.com/rodjek/librarian-puppet for librarian puppet which was the project which first defined the Puppetfile and the method for pulling modules down from this definition.
