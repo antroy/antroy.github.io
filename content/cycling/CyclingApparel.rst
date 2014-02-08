@@ -1,6 +1,7 @@
 Commuting through the Seasons
 =============================
 
+:title: Commuting through the Seasons
 :date: 2014-01-31 20:25
 :modified: 2014-01-31 20:25
 :tags: cycling, clothing

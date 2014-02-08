@@ -1,0 +1,6 @@
+[submodule "themes"]
+	path = themes
+	url = https://github.com/getpelican/pelican-themes.git
+[submodule "output"]
+	path = output
+	url = git@github.com:antroy/antroy.github.io.git

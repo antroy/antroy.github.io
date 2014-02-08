@@ -1,6 +1,7 @@
 The Git Phoenix
 ===============
 
+:title: Deploying with the Git Phoenix Script
 :date: 2014-02-04 08:14
 :modified: 2014-02-04 08:14
 :tags: git, coding, deployment, puppet

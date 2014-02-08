@@ -3,10 +3,16 @@
 from __future__ import unicode_literals
 
 AUTHOR = u'Anthony Roy'
-SITENAME = u'Velocity'
+SITENAME = u'Anthony Roy'
 SITEURL = ''
 
-TIMEZONE = 'Europe/Paris'
+#THEME = './themes/sneakyidea'
+#THEME = './themes/bootstrap'
+THEME = './themes/pelican-bootstrap3'
+MENUITEMS = (('Tags', 'tags.html'),)
+
+
+TIMEZONE = 'Europe/London'
 
 DEFAULT_LANG = u'en'
 
@@ -19,6 +25,7 @@ TRANSLATION_FEED_ATOM = None
 LINKS =  (('Pelican', 'http://getpelican.com/'),
           ('Python.org', 'http://python.org/'),
           ('xkcd', 'http://xkcd.org/'),
+          ('The System', 'http://www.systemcomic.com/'),
          )
 
 # Social widget
@@ -26,6 +33,7 @@ SOCIAL = (('@antroy at GitHub', 'https://github.com/antroy'),
          )
 
 DEFAULT_PAGINATION = False
+DISQUS_SITENAME = "Velocity"
 
 # Uncomment following line if you want document-relative URLs when developing
 #RELATIVE_URLS = True
