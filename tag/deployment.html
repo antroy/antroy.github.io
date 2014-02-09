@@ -1,124 +1,175 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:og="http://ogp.me/ns#"
+      xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-        <meta charset="utf-8" />
-        <title>Velocity - deployment</title>
-        <link rel="stylesheet" href="/theme/css/main.css" />
+    <title>deployment - Anthony Roy</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
 
-        <!--[if IE]>
-            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->
+    <!-- Open Graph tags -->
+            <meta property="og:type" content="website"/>
+            <meta property="og:title" content="Anthony Roy"/>
+            <meta property="og:url" content=""/>
+            <meta property="og:description" content="Anthony Roy"/>
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments/native.css" rel="stylesheet">
+    <link rel="stylesheet" href="/theme/css/style.css" type="text/css"/>
+
+
 </head>
+<body>
 
-<body id="index" class="home">
-        <header id="banner" class="body">
-                <h1><a href="/">Velocity </a></h1>
-                <nav><ul>
-                    <li><a href="/category/programming.html">Programming</a></li>
-                </ul></nav>
-        </header><!-- /#banner -->
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/" class="navbar-brand">
+Anthony Roy            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="tags.html">Tags</a></li>
+                        <li >
+                            <a href="/category/programming.html">Programming</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
 
-            <aside id="featured" class="body">
-                <article>
-                    <h1 class="entry-title"><a href="/Git push for code deployment using Puppet.html">The Git Phoenix</a></h1>
-<footer class="post-info">
-        <abbr class="published" title="2014-02-04T08:14:00">
-                Tue 04 February 2014
-        </abbr>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
 
-        <address class="vcard author">
-                By <a class="url fn" href="/author/anthony-roy.html">Anthony Roy</a>
-        </address>
-<p>In <a href="/category/programming.html">Programming</a>. </p>
-<p>tags: <a href="/tag/git.html">git</a><a href="/tag/coding.html">coding</a><a href="/tag/deployment.html">deployment</a><a href="/tag/puppet.html">puppet</a></p>
-</footer><!-- /.post-info --><p>Git is a great tool for managing source code, and is very flexible in what you can do with it. Puppet is great for configuration management, and can be used to great effect for automating the provisioning of software onto machines.</p>
-<p>I have been using puppet at work for a year or so now in the automation of server builds in our internal cloud. A few months ago I decided that it would make sense to use it at home to standardise my PC builds and make it easy to make changes to one machine and have that change propagate out to the others. I use git at home for my personal projects (Bitbucket for private stuff, GitHub for stuff I share) and one of the Puppet deployment methods that has come about in the last year or so is the so called Masterless Puppet, where code is pushed to a bunch of machines using git.</p>
-<p>Incidentally this also works great for deploying arbitrary code - for example a website - to a bunch of servers.</p>
-<p>The typical setup for this is as follows. For each machine you want to deploy to:</p>
-<ol class="arabic simple">
-<li>Set up an empty git repo with <tt class="docutils literal">git init <span class="pre">--bare</span></tt>.</li>
-<li>Write a git post-receive hook that will archive the current state of the repos master branch and unpack it in the puppet location, and then run puppet apply</li>
-</ol>
-<pre class="literal-block">
-git archive --format=tar master | (cd /etc/puppet; tar -x)
-</pre>
-<p>On your &quot;master&quot; machine - which with git being distributed can be any machine you happen to be developing on, you need to set up your remote. Add the following to the <tt class="docutils literal">.git/config</tt> file:</p>
-<pre class="literal-block">
-[remote webservers]
-blah.balh
-blah.balh
-</pre>
-<p>This works pretty well. You deploy to each of the machines in your remotes list by simply running <tt class="docutils literal">git push webservers</tt>.</p>
-<p>The downside to this approach is if you want to roll back code. It would be nice to be able to roll back the master branch to a particular commit without a horde of messy revert commits. With git you can move the head back to a particular commit easily using <tt class="docutils literal">git reset <span class="pre">--hard</span> a4d779c</tt> for example, or to a tag if you have been tagging your code - <tt class="docutils literal">git reset <span class="pre">--hard</span> 1.4.2</tt>.</p>
-<p>The issue is that git's post-receive hooks don't fire for this sort of change. Nothing is received, hence no hook is fired.</p>
-<div class="section" id="the-phoenix-script">
-<h2>The Phoenix Script</h2>
-<p>Cue the Pheonix script, a post commit hook that destroys itself before rebuilding itself again from the ashes. It is in essence a post-receive hook which is held outside of the git repo and symlinked in, which performs the following steps when run.</p>
-<ol class="arabic simple">
-<li>Archive off the code to the relevant location as above.</li>
-<li>Run puppet.</li>
-<li>Delete the git repository.</li>
-<li>Create a new bare repository in the same location.</li>
-<li>Symlink itself into the .git/hooks directory.</li>
-</ol>
-<p>The code itself looks like this:</p>
-<pre class="literal-block">
-#!/bin/bash
-PHEONIX=/var/repos/phoenix.sh
-PUPPET_DIR=/etc/puppet
-GIT_REPO=/var/repos/puppet_code
+            <article>
+                <h2><a href="/Git push for code deployment using Puppet.html">Deploying with the Git Phoenix Script</a></h2>
+                <div class="summary"><p class="first last">A technique for managing a small number of machines using Puppet and git</p>
 
-rm -rf $PUPPET_DIR/*
-cd $GIT_REPO
-git archive --format=tar master | (cd $PUPPET_DIR; tar -x)
-puppet apply $PUPPET_DIR/manifests/site.pp
+                    <a class="btn btn-default btn-xs" href="/Git push for code deployment using Puppet.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
 
-rm -rf $GIT_REPO
-mkdir $GIT_REPO
-cd $GIT_REPO
-git init --bare
-ln -s $PHEONIX $GIT_REPO/.git/hooks/post-receive
-</pre>
-<p>This has the advantage that whenever you push, the code will get checked out and placed in the appropriate directory, even if no commits have been made, just references (i.e. the master pointer) has been moved.</p>
-<p>The main disadvantage to this approach is that you are having to send the entire repo over to each server every time you push. This is not a major issue if your codebase is small, but with a large infrastructure and large puppet deployment this could take quite a lot of time.</p>
+        </div>
+        <div class="col-sm-3 well well-sm" id="sidebar">
+
+<aside>
+    <section>
+        <ul class="list-group list-group-flush">
+                <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+                  <ul class="list-group" id="social">
+                    <li class="list-group-item"><a href="https://github.com/antroy"><i
+                            class="fa fa-@antroy at github-square fa-lg"></i> @antroy at GitHub
+                    </a></li>
+                  </ul>
+                </li>
+
+
+
+                <li class="list-group-item"><a href="/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+                    <ul class="list-group" id="tags">
+                        <li class="list-group-item tag-4">
+                            <a href="/tag/deployment.html">
+                                deployment
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="/tag/git.html">
+                                git
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="/tag/puppet.html">
+                                puppet
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="/tag/coding.html">
+                                coding
+                            </a>
+                        </li>
+                    </ul>
+                </li>    
+    <li class="list-group-item"><h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+      <ul class="list-group" id="links">
+        <li class="list-group-item">
+            <a href="http://getpelican.com/" target="_blank">
+                Pelican
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://python.org/" target="_blank">
+                Python.org
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://xkcd.org/" target="_blank">
+                xkcd
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://www.systemcomic.com/" target="_blank">
+                The System
+            </a>
+        </li>
+      </ul>
+    </li>
+
+        </ul>
+    </section>
+
+</aside>        </div>
+    </div>
 </div>
-<div class="section" id="puppet-librarian-and-r10k">
-<h2>Puppet Librarian and R10K</h2>
-<p>There are two tools which can mitigate this overhead, and have the advantage of organising your puppet modules in a better way than keeping everything in one repository. This method has three parts.</p>
-<p>Firstly, you need to create a git repo for each module in your codebase. This step has several advantages by itself. Teams can work on different modules without treading on each others toes. Modules can be shared on github or the like for other developers to use and enhance.</p>
-<p>The second step is to create a Puppetfile which is effectively a shopping list of the modules you are interested in. You tell it which modules you want, their git locations if pulling directly from git (they are downloaded from the Puppetforge otherwise), and which version you want (for git repos this can be any arbitrary commit hash, branch or tag).</p>
-<p>You then add a call to r10k from your Phoenix script. r10k reads the puppetfile and will download all modules referenced into your modules directory.
-In practice, the repo that I push to each server isn't the entire puppet codebase, but a small repo which contains a Puppetfile readable by the r10k tool and some hiera configuration. This means that the push always delivers the correct puppetfile and hiera data, but the other modules that are brought in by r10k are cached. See <a class="reference external" href="https://github.com/adrienthebo/r10k">https://github.com/adrienthebo/r10k</a> for more details on r10k and <a class="reference external" href="https://github.com/rodjek/librarian-puppet">https://github.com/rodjek/librarian-puppet</a> for librarian puppet.</p>
-</div>
-                </article>
-            </aside><!-- /#featured -->
-            </ol><!-- /#posts-list -->
-            </section><!-- /#content -->
-        <section id="extras" class="body">
-                <div class="blogroll">
-                        <h2>blogroll</h2>
-                        <ul>
-                            <li><a href="http://getpelican.com/">Pelican</a></li>
-                            <li><a href="http://python.org/">Python.org</a></li>
-                            <li><a href="http://xkcd.org/">xkcd</a></li>
-                        </ul>
-                </div><!-- /.blogroll -->
-                <div class="social">
-                        <h2>social</h2>
-                        <ul>
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2014 Anthony Roy
+            &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="http://code.jquery.com/jquery.js"></script>
 
-                            <li><a href="https://github.com/antroy">@antroy at GitHub</a></li>
-                        </ul>
-                </div><!-- /.social -->
-        </section><!-- /#extras -->
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="/theme/js/bootstrap.min.js"></script>
 
-        <footer id="contentinfo" class="body">
-                <address id="about" class="vcard body">
-                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
-                </address><!-- /#about -->
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="/theme/js/respond.min.js"></script>
 
-                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
-        </footer><!-- /#contentinfo -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'Velocity'; // required: replace example with your forum shortname
 
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
 </body>
 </html>
