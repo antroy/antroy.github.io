@@ -20,7 +20,6 @@ I will start with the bash part of the script. This can be copied replacing just
 
     _woof () {
         local cur prev
-        COMPREPLY=()
         cur=${COMP_WORDS[COMP_CWORD]}
         prev=${COMP_WORDS[COMP_CWORD - 1]}
         all=$( IFS=$' '; echo "${COMP_WORDS[*]}" )
@@ -37,5 +36,11 @@ I will start with the bash part of the script. This can be copied replacing just
     
     complete -F _woof dog
     
-The above script  (First COMPREPLY needed?)
+The above script is boilerplate code that gets the right values out of the competion variables and sends them through to your script. The arguments passed in are the current word, the previous word and then all of the arguments. The current and previous could probably be left out, as all of the information required will be in that final list of "COMP_WORDS".
+
+The Python Part
+===============
+
+Time for the Python script. This will just implement a multi-level completion where previous terms dictate what future terms look like.
+
 

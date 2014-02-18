@@ -7,6 +7,9 @@ SITENAME = u'Anthony Roy'
 SITEURL = ''
 
 THEME = './theme/pelican-bootstrap3'
+BOOTSTRAP_THEME = 'cerulean'
+ARTICLE_DIR = './content'
+
 MENUITEMS = (('Tags', 'tags.html'),)
 
 TIMEZONE = 'Europe/London'
