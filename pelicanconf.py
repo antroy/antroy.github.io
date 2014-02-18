@@ -6,11 +6,8 @@ AUTHOR = u'Anthony Roy'
 SITENAME = u'Anthony Roy'
 SITEURL = ''
 
-#THEME = './themes/sneakyidea'
-#THEME = './themes/bootstrap'
-THEME = './themes/pelican-bootstrap3'
+THEME = './theme/pelican-bootstrap3'
 MENUITEMS = (('Tags', 'tags.html'),)
-
 
 TIMEZONE = 'Europe/London'
 
