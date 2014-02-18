@@ -16,13 +16,14 @@ Bash completion can be awkward to program in bash. The docs aren't great, and th
 The Bash Part
 =============
 
-I will start with the bash part of the script. This can be copied replacing just the name of your completion program and the commands to complete. It focuses on getting the important information out of bash completion and into your code::
+I will start with the bash part of the script. This can be copied replacing just the name of your completion program and the commands to complete. It focuses on getting the important information out of bash completion and into your code.
+
+.. code-block:: bash
 
     _woof () {
         local cur prev
         cur=${COMP_WORDS[COMP_CWORD]}
         prev=${COMP_WORDS[COMP_CWORD - 1]}
-        all=$( IFS=$' '; echo "${COMP_WORDS[*]}" )
     
         words=`./dog.py "$cur" "$prev" ${COMP_WORDS[*]}` 
     
