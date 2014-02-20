@@ -2,16 +2,16 @@
 Bash Completion
 ===============
 
-:date: 2014-02-04 17:24
-:modified: 2014-02-04 17:24
-:tags: coding, bash, autocomplete, python, ruby
+:date: 2014-02-20 22:50
+:modified: 2014-02-20 22:50
+:tags: coding, bash, autocomplete, python
 :category: Programming
 :slug: Complex commandline completion in the bash shell
 :author: Anthony Roy
 :summary: Command line completion can be awkward in bash. Make it easier by shelling out to a more powerful language.
-:status: draft
+:status: published
 
-Bash completion can be awkward to program in bash. The docs aren't great, and the language esoteric. It would be nice to be able to use your favorite language to do the heavy lifting. This article shows how to acheive this in Python and Ruby and provides an example of how you can call in to your own application to get the completion data.
+Bash completion can be awkward to program in bash. The docs aren't great, and the language esoteric. It would be nice to be able to use your favorite language to do the heavy lifting. This article shows how to acheive this in Python and provides an example of how you can call in to your own application to get the completion data.
 
 The Bash Part
 =============
@@ -21,14 +21,13 @@ I will start with the bash part of the script. This can be copied replacing just
 .. code-block:: bash
 
     _complete () {
-        local cur prev
-        cur=${COMP_WORDS[COMP_CWORD]}
+        local cur
     
+        cur=${COMP_WORDS[COMP_CWORD]}
         words=`./comp_blog.py "$COMP_CWORD" ${COMP_WORDS[*]}` 
     
         COMPREPLY=( $(compgen -W "${words}" -- ${cur}) )
     }
-    
     
     blog(){
         echo "blog $*"
@@ -36,7 +35,7 @@ I will start with the bash part of the script. This can be copied replacing just
 
 complete -F _complete blog
     
-The above script is boilerplate code that gets the right values out of the competion variables and sends them through to your script. The arguments passed in are the current word, the previous word and then all of the arguments. The current and previous could probably be left out, as all of the information required will be in that final list of "COMP_WORDS".
+The above script is boilerplate code that gets the right values out of the competion variables and sends them through to your script. The arguments passed in are the all of the arguments currently on the commandline. cur is used by the compgen function to determine what the current word in the argument list is.
 
 The Python Part
 ===============
@@ -52,23 +51,33 @@ Time for the Python script. This will just implement a multi-level completion wh
             'add': ['--name', '--date', '--content'],
             'delete': ['--name', '--force']
     }
+
     commands = options.keys()
     
-    index = int(sys.argv[1])
-    all = sys.argv[2:]
+    index = int(sys.argv[1]) # First argument is the index.
+    all = sys.argv[2:]       # All others are the args.
     
+    # If the list is shorter than the index of the current word
+    # then the current word is empty. Otherwise it is the last 
+    # element in the list.
     cur = "" if len(all) <= index else all[index]
-    prev = all[index - 1]
-    all = all[1:]
+    prev = all[index - 1] # Item before the current.
+    all = all[1:] # Strip off the command name from the beginning.
     
     if prev not in all:
+        # prev must be the command itself. Return subcommands.
         print " ".join(commands)
     else:
+        # Find the subcommands already present.
         command_list = [word for word in all if word in commands]
         if command_list:
-            opts = options[command_list[0]]
+            # Send back options of latest subcommand.
+            opts = options[command_list[-1]]
             print " ".join([opt for opt in opts if opt not in all])
         else:
+            # No completions to be had.
             print ""
     
-Note.
+Note that the ``cur`` variable isn't used but is provided in order to illustrate how to get the same value as in the bash script above. The ``all`` variable contains all arguments, stripping out the name of the script (``argv[0]``) and the name of the command being completed (i.e. ``blog`` in this example.) This is a fairly simple multi-level script that has a list of options for the subcommands provided.
+
+More complex scripts could be created - with much more ease and readability than if they had been written in bash. I have written a small command framework in Ruby which uses the Trollop option parser to parse the command line. Using the parser method in Trollop, it is fairly easy to create a program which defines subcommands, where those subcommands provide their own option parser. The Trollop parsers can be queried for the purposes of autocompletion. This may make up a future post.

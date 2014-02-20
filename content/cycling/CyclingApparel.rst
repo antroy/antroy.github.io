@@ -1,7 +1,7 @@
+=============================
 Commuting through the Seasons
 =============================
 
-:title: Commuting through the Seasons
 :date: 2014-01-31 20:25
 :modified: 2014-01-31 20:25
 :tags: cycling, clothing
@@ -24,8 +24,8 @@ Comfort is important on any commute over say 3 miles uphill or 5 on the flat. Sk
 
 So here are my recommendations for the seasons (or at least temperature bands that might be typical for the seasons in Britain - after all it is the conditions not the *actual* seasons that are important.
 
-Winter (5C - -10C)
-==================
+Winter (5°C - -10°C)
+====================
 
 Winter first, since that is where we currently are. 
 
