@@ -41,7 +41,7 @@ The issue is that git's post-receive hooks don't fire for this sort of change. N
 The Phoenix Script
 ------------------
 
-Cue the Pheonix script, a post commit hook that destroys itself before rebuilding itself again from the ashes. It is in essence a post-receive hook which is held outside of the git repo and symlinked in, which performs the following steps when run.
+Cue the Phoenix script, a post commit hook that destroys itself before rebuilding itself again from the ashes. It is in essence a post-receive hook which is held outside of the git repo and symlinked in, which performs the following steps when run.
 
 1. Archive off the code to the relevant location as above.
 2. Run puppet.
@@ -52,7 +52,7 @@ Cue the Pheonix script, a post commit hook that destroys itself before rebuildin
 The code itself looks like this::
 
     #!/bin/bash
-    PHEONIX=/var/repos/phoenix.sh
+    PHOENIX=/var/repos/phoenix.sh
     PUPPET_DIR=/etc/puppet
     GIT_REPO=/var/repos/puppet_code
 
@@ -65,7 +65,7 @@ The code itself looks like this::
     mkdir $GIT_REPO
     cd $GIT_REPO
     git init --bare
-    ln -s $PHEONIX $GIT_REPO/.git/hooks/post-receive
+    ln -s $PHOENIX $GIT_REPO/.git/hooks/post-receive
 
 This has the advantage that whenever you push, the code will get checked out and placed in the appropriate directory, even if no commits have been made, just references (i.e. the master pointer) has been moved.
 
@@ -76,10 +76,10 @@ Puppet Librarian and R10K
 
 There are two tools which can mitigate this overhead, and have the advantage of organising your puppet modules in a better way than keeping everything in one repository. This method has three parts.
 
-Firstly, you need to create a git repo for each module in your codebase. This step has several advantages by itself. Teams can work on different modules without treading on each others toes. Modules can be shared on github or the like for other developers to use and enhance.
+Firstly, you need to create a git repo for each module in your codebase. This step has several advantages by itself. Teams can work on different modules without treading on each others toes. Modules can be shared on GitHub or the like for other developers to use and enhance.
 
 The second step is to create a Puppetfile which is effectively a shopping list of the modules you are interested in. You tell it which modules you want, their git locations if pulling directly from git (they are downloaded from the Puppetforge otherwise), and which version you want (for git repos this can be any arbitrary commit hash, branch or tag).
 
-You then add a call to r10k from your Phoenix script. r10k reads the puppetfile and will download all modules referenced into your modules directory.
+You then add a call to r10k from your Phoenix script. r10k reads the Puppetfile and will download all modules referenced into your modules directory.
 
-The net effect of this is that the repo that I push to each server isn't the entire puppet codebase, but a small repo which contains a Puppetfile readable by the r10k tool and some hiera configuration. This means that the push always delivers the correct puppetfile and hiera data, but the other modules that are brought in by r10k are cached. See https://github.com/adrienthebo/r10k for more details on r10k and https://github.com/rodjek/librarian-puppet for librarian puppet which was the project which first defined the Puppetfile and the method for pulling modules down from this definition.
+The net effect of this is that the repo that I push to each server isn't the entire puppet codebase, but a small repo which contains a Puppetfile readable by the r10k tool and some hiera configuration. This means that the push always delivers the correct Puppetfile and hiera data, but the other modules that are brought in by r10k are cached. See https://github.com/adrienthebo/r10k for more details on r10k and https://github.com/rodjek/librarian-puppet for librarian puppet which was the project which first defined the Puppetfile and the method for pulling modules down from this definition.
