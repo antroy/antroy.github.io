@@ -113,7 +113,7 @@ git archive --format=tar master | (cd /etc/puppet; tar -x)
 <p>The issue is that git's post-receive hooks don't fire for this sort of change. Nothing is received, hence no hook is fired.</p>
 <div class="section" id="the-phoenix-script">
 <h2>The Phoenix Script</h2>
-<p>Cue the Pheonix script, a post commit hook that destroys itself before rebuilding itself again from the ashes. It is in essence a post-receive hook which is held outside of the git repo and symlinked in, which performs the following steps when run.</p>
+<p>Cue the Phoenix script, a post commit hook that destroys itself before rebuilding itself again from the ashes. It is in essence a post-receive hook which is held outside of the git repo and symlinked in, which performs the following steps when run.</p>
 <ol class="arabic simple">
 <li>Archive off the code to the relevant location as above.</li>
 <li>Run puppet.</li>
@@ -124,7 +124,7 @@ git archive --format=tar master | (cd /etc/puppet; tar -x)
 <p>The code itself looks like this:</p>
 <pre class="literal-block">
 #!/bin/bash
-PHEONIX=/var/repos/phoenix.sh
+PHOENIX=/var/repos/phoenix.sh
 PUPPET_DIR=/etc/puppet
 GIT_REPO=/var/repos/puppet_code
 
@@ -137,7 +137,7 @@ rm -rf $GIT_REPO
 mkdir $GIT_REPO
 cd $GIT_REPO
 git init --bare
-ln -s $PHEONIX $GIT_REPO/.git/hooks/post-receive
+ln -s $PHOENIX $GIT_REPO/.git/hooks/post-receive
 </pre>
 <p>This has the advantage that whenever you push, the code will get checked out and placed in the appropriate directory, even if no commits have been made, just references (i.e. the master pointer) has been moved.</p>
 <p>The main disadvantage to this approach is that you are having to send the entire repo over to each server every time you push. This is not a major issue if your codebase is small, but with a large infrastructure and large puppet deployment this could take quite a lot of time.</p>
@@ -145,14 +145,27 @@ ln -s $PHEONIX $GIT_REPO/.git/hooks/post-receive
 <div class="section" id="puppet-librarian-and-r10k">
 <h2>Puppet Librarian and R10K</h2>
 <p>There are two tools which can mitigate this overhead, and have the advantage of organising your puppet modules in a better way than keeping everything in one repository. This method has three parts.</p>
-<p>Firstly, you need to create a git repo for each module in your codebase. This step has several advantages by itself. Teams can work on different modules without treading on each others toes. Modules can be shared on github or the like for other developers to use and enhance.</p>
+<p>Firstly, you need to create a git repo for each module in your codebase. This step has several advantages by itself. Teams can work on different modules without treading on each others toes. Modules can be shared on GitHub or the like for other developers to use and enhance.</p>
 <p>The second step is to create a Puppetfile which is effectively a shopping list of the modules you are interested in. You tell it which modules you want, their git locations if pulling directly from git (they are downloaded from the Puppetforge otherwise), and which version you want (for git repos this can be any arbitrary commit hash, branch or tag).</p>
-<p>You then add a call to r10k from your Phoenix script. r10k reads the puppetfile and will download all modules referenced into your modules directory.</p>
-<p>The net effect of this is that the repo that I push to each server isn't the entire puppet codebase, but a small repo which contains a Puppetfile readable by the r10k tool and some hiera configuration. This means that the push always delivers the correct puppetfile and hiera data, but the other modules that are brought in by r10k are cached. See <a class="reference external" href="https://github.com/adrienthebo/r10k">https://github.com/adrienthebo/r10k</a> for more details on r10k and <a class="reference external" href="https://github.com/rodjek/librarian-puppet">https://github.com/rodjek/librarian-puppet</a> for librarian puppet which was the project which first defined the Puppetfile and the method for pulling modules down from this definition.</p>
+<p>You then add a call to r10k from your Phoenix script. r10k reads the Puppetfile and will download all modules referenced into your modules directory.</p>
+<p>The net effect of this is that the repo that I push to each server isn't the entire puppet codebase, but a small repo which contains a Puppetfile readable by the r10k tool and some hiera configuration. This means that the push always delivers the correct Puppetfile and hiera data, but the other modules that are brought in by r10k are cached. See <a class="reference external" href="https://github.com/adrienthebo/r10k">https://github.com/adrienthebo/r10k</a> for more details on r10k and <a class="reference external" href="https://github.com/rodjek/librarian-puppet">https://github.com/rodjek/librarian-puppet</a> for librarian puppet which was the project which first defined the Puppetfile and the method for pulling modules down from this definition.</p>
 </div>
 
             </div>
             <!-- /.entry-content -->
+    <hr />
+    <!-- AddThis Button BEGIN -->
+    <div class="addthis_toolbox addthis_default_style ">
+        <a class="addthis_button_preferred_1"></a>
+        <a class="addthis_button_preferred_2"></a>
+        <a class="addthis_button_preferred_3"></a>
+        <a class="addthis_button_preferred_4"></a>
+        <a class="addthis_button_compact"></a>
+        <a class="addthis_counter addthis_bubble_style"></a>
+        </div>
+        <script type="text/javascript">var addthis_config = {"data_track_addressbar":true};</script>
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-52f76e637a77ab77"></script>
+        <!-- AddThis Button END -->
     <hr />
     <section class="comments" id="comments">
         <h2>Comments</h2>
@@ -215,18 +228,8 @@ ln -s $PHEONIX $GIT_REPO/.git/hooks/post-receive
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://antroy.github.io/tag/puppet.html">
-                                puppet
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
                             <a href="http://antroy.github.io/tag/git.html">
                                 git
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://antroy.github.io/tag/bash.html">
-                                bash
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -235,8 +238,18 @@ ln -s $PHEONIX $GIT_REPO/.git/hooks/post-receive
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
+                            <a href="http://antroy.github.io/tag/puppet.html">
+                                puppet
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
                             <a href="http://antroy.github.io/tag/deployment.html">
                                 deployment
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://antroy.github.io/tag/bash.html">
+                                bash
                             </a>
                         </li>
                     </ul>

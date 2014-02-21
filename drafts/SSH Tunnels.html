@@ -87,15 +87,71 @@ Anthony Roy            </a>
     
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <p>Blah blah ssh tunnel balhe.</p>
+                <p>Tunnelling is a really useful way to get connectivity to services on other machines where firewall restrictions would otherwise stop you from getting that connectivity. Use cases for this include gaining access to services in test environments from your development machine in order to test your applications against real endpoints or connecting from a laptop over VPN to a desktop machine. The following examples show forward and reverse tunnels and how they can be combined to tunnel from one machine to another via a third that both can access.</p>
+<div class="section" id="ssh-tunnel">
+<h2>SSH Tunnel</h2>
+<p>The basic command for setting up a tunnel is as follows:</p>
+<div class="highlight"><pre><span class="lineno">1</span> ssh -L &lt;local_port&gt;:&lt;destination_host&gt;:&lt;destination_port&gt; &lt;remote_user&gt;@&lt;remote_host&gt;
+</pre></div>
+<p>The following commandline snippets show how you can tunnel through ssh in order to ftp a file onto a remote box and how to access a web port on a remote server locally.</p>
+<div class="highlight"><pre><span class="lineno">1</span> ssh -L 1234:ftp_server:21 middleman@188.88.88.88
+<span class="lineno">2</span> ssh -L 80:localhost:8080 middleman@188.88.88.88
+</pre></div>
+<p>In the first example we set up the tunnel through a middleman server that we have access to, and that has access to port 21 on the ftp_server. We can then ftp to and from ftp_server by connecting to port 1234 on our local machine.</p>
+<p>The second example shows how we can expose a port (8080) on a server we have ssh access to TODO.</p>
+<p>This sets up forwarding from the local machine on port 1234 through to port 21 on the remote machine. With this, assuming port 21 is blocked from your machine to the remote machine, you can still ftp things (in this example) by setting up a tunnel as above, but ftping to port 1234 on your local machine instead.</p>
+<p>#SSH Reverse Tunnel
+{{{bash
+ssh -R &lt;remote_port&gt;:localhost:&lt;local_port&gt; &lt;remote_user&gt;&#64;&lt;remote_host&gt;</p>
+<p>e.g.</p>
+<p>ssh -R 19999:localhost:22 sourceuser&#64;138.47.99.99
+}}}</p>
+<p>The above sets up a reverse tunnel from the server 138.47.99.99 to your local machine using port 19999. This means that if you are on that remote machine (and assuming you cannot get to port 22 on your machine from the remote one) you can ssh onto your machine using:</p>
+<p>{{{bash
+ssh localhost -p 19999
+}}}</p>
+<p>Note - keep the session alive by opening a screen session on the remote server from your machine and running 'top' or similar in that session.</p>
+<p>#Combined tunnel - ssh onto one of your machines from another via a middle server.</p>
+<p>Say you have two machines (adam and bob) on different networks and you are not able to ssh from one to the other. Both have access to a third machine (malcolm) however. You can use that third machine to tunnel directly from the first to the second as follows:</p>
+<p>On machine adam set up a tunnel to malcolm:
+{{{
+ssh -L 1234:localhost:1235 malcolm
+}}}</p>
+<p>On machine bob set up a reverse tunnel to malcolm:
+{{{
+ssh -R 1235:localhost:22 malcolm
+}}}</p>
+<p>On machine adam, ssh to bob with:
+{{{
+ssh -p 1234 localhost
+}}}</p>
+<p>The connections are as follows:
+{{{
+adam -&gt; adam:1234 -&gt; malcolm:1234 -&gt; malcolm:1235 -&gt; bob:22
+}}}</p>
+<p>Blah blah ssh tunnel balhe.</p>
 <p>Example:</p>
 <pre class="literal-block">
 ssh -R 1234:localhost:22 me&#64;myserver:1234
 </pre>
 <p>Other text</p>
+</div>
 
             </div>
             <!-- /.entry-content -->
+    <hr />
+    <!-- AddThis Button BEGIN -->
+    <div class="addthis_toolbox addthis_default_style ">
+        <a class="addthis_button_preferred_1"></a>
+        <a class="addthis_button_preferred_2"></a>
+        <a class="addthis_button_preferred_3"></a>
+        <a class="addthis_button_preferred_4"></a>
+        <a class="addthis_button_compact"></a>
+        <a class="addthis_counter addthis_bubble_style"></a>
+        </div>
+        <script type="text/javascript">var addthis_config = {"data_track_addressbar":true};</script>
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-52f76e637a77ab77"></script>
+        <!-- AddThis Button END -->
     <hr />
     <section class="comments" id="comments">
         <h2>Comments</h2>
@@ -158,18 +214,8 @@ ssh -R 1234:localhost:22 me&#64;myserver:1234
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://antroy.github.io/tag/puppet.html">
-                                puppet
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
                             <a href="http://antroy.github.io/tag/git.html">
                                 git
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://antroy.github.io/tag/bash.html">
-                                bash
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -178,8 +224,18 @@ ssh -R 1234:localhost:22 me&#64;myserver:1234
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
+                            <a href="http://antroy.github.io/tag/puppet.html">
+                                puppet
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
                             <a href="http://antroy.github.io/tag/deployment.html">
                                 deployment
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://antroy.github.io/tag/bash.html">
+                                bash
                             </a>
                         </li>
                     </ul>
