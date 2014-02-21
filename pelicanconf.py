@@ -5,7 +5,7 @@ from pelican.readers import *
 
 AUTHOR = u'Anthony Roy'
 SITENAME = u'Anthony Roy'
-SITEURL = ''
+SITEURL = 'http://antroy.github.io'
 
 THEME = './theme/pelican-bootstrap3'
 BOOTSTRAP_THEME = 'cerulean'
