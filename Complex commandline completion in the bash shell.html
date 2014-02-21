@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:og="http://ogp.me/ns#"
+      xmlns:fb="https://www.facebook.com/2008/fbml">
+<head>
+    <title>Bash Completion - Anthony Roy</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+
+    <!-- Open Graph tags -->
+            <meta property="og:type" content="article"/>
+            <meta property="og:title" content="Bash Completion"/>
+            <meta property="og:url" content="/Complex commandline completion in the bash shell.html"/>
+            <meta property="og:description" content="Command line completion can be awkward in bash. Make it easier by shelling out to a more powerful language."/>
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="/theme/css/bootstrap.cerulean.min.css" type="text/css"/>
+    <link href="/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments/native.css" rel="stylesheet">
+    <link rel="stylesheet" href="/theme/css/style.css" type="text/css"/>
+
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/" class="navbar-brand">
+Anthony Roy            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="tags.html">Tags</a></li>
+                        <li class="active">
+                            <a href="/category/programming.html">Programming</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="/Complex commandline completion in the bash shell.html"
+                       rel="bookmark"
+                       title="Permalink to Bash Completion">
+                        Bash Completion
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2014-02-20T22:50:00"> Thu 20 February 2014</time>
+    </span>
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="/tag/coding.html">coding</a>
+        /
+	<a href="/tag/bash.html">bash</a>
+        /
+	<a href="/tag/autocomplete.html">autocomplete</a>
+        /
+	<a href="/tag/python.html">python</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>Bash completion can be awkward to program in bash. The docs aren't great, and the language esoteric. It would be nice to be able to use your favorite language to do the heavy lifting. This article shows how to achieve this in Python and provides an example of how you can call in to your own application to get the completion data.</p>
+<div class="section" id="the-bash-part">
+<h2>The Bash Part</h2>
+<p>I will start with the bash part of the script. This can be copied replacing just the name of your completion program and the commands to complete. It focuses on getting the important information out of bash completion and into your code.</p>
+<div class="highlight"><pre><span class="lineno"> 1</span> _complete <span class="o">()</span> <span class="o">{</span>
+<span class="lineno"> 2</span>     <span class="nb">local </span>cur
+<span class="lineno"> 3</span> 
+<span class="lineno"> 4</span>     <span class="nv">cur</span><span class="o">=</span><span class="k">${</span><span class="nv">COMP_WORDS</span><span class="p">[COMP_CWORD]</span><span class="k">}</span>
+<span class="lineno"> 5</span>     <span class="nv">words</span><span class="o">=</span><span class="sb">`</span>./comp_blog.py <span class="s2">&quot;$COMP_CWORD&quot;</span> <span class="k">${</span><span class="nv">COMP_WORDS</span><span class="p">[*]</span><span class="k">}</span><span class="sb">`</span>
+<span class="lineno"> 6</span> 
+<span class="lineno"> 7</span>     <span class="nv">COMPREPLY</span><span class="o">=(</span> <span class="k">$(</span><span class="nb">compgen</span> -W <span class="s2">&quot;${words}&quot;</span> -- <span class="k">${</span><span class="nv">cur</span><span class="k">})</span> <span class="o">)</span>
+<span class="lineno"> 8</span> <span class="o">}</span>
+<span class="lineno"> 9</span> 
+<span class="lineno">10</span> blog<span class="o">(){</span>
+<span class="lineno">11</span>     <span class="nb">echo</span> <span class="s2">&quot;blog $*&quot;</span>
+<span class="lineno">12</span> <span class="o">}</span>
+<span class="lineno">13</span> 
+<span class="lineno">14</span> <span class="nb">complete</span> -F _complete blog
+</pre></div>
+<p>The above script is boilerplate code that gets the right values out of the completion variables and sends them through to your script. The arguments passed in are the all of the arguments currently on the commandline. <tt class="docutils literal">cur</tt> is used by the <tt class="docutils literal">compgen</tt> function to determine what the current word in the argument list is.</p>
+</div>
+<div class="section" id="the-python-part">
+<h2>The Python Part</h2>
+<p>Time for the Python script. This will just implement a multi-level completion where previous terms dictate what future terms look like.</p>
+<div class="highlight"><pre><span class="lineno"> 1</span> <span class="c">#!/usr/bin/python</span>
+<span class="lineno"> 2</span> <span class="kn">import</span> <span class="nn">sys</span>
+<span class="lineno"> 3</span> 
+<span class="lineno"> 4</span> <span class="n">options</span> <span class="o">=</span> <span class="p">{</span>
+<span class="lineno"> 5</span>         <span class="s">&#39;add&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;--name&#39;</span><span class="p">,</span> <span class="s">&#39;--date&#39;</span><span class="p">,</span> <span class="s">&#39;--content&#39;</span><span class="p">],</span>
+<span class="lineno"> 6</span>         <span class="s">&#39;delete&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;--name&#39;</span><span class="p">,</span> <span class="s">&#39;--force&#39;</span><span class="p">]</span>
+<span class="lineno"> 7</span> <span class="p">}</span>
+<span class="lineno"> 8</span> 
+<span class="lineno"> 9</span> <span class="n">commands</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<span class="lineno">10</span> 
+<span class="lineno">11</span> <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="c"># First argument is the index.</span>
+<span class="lineno">12</span> <span class="nb">all</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>       <span class="c"># All others are the args.</span>
+<span class="lineno">13</span> 
+<span class="lineno">14</span> <span class="c"># If the list is shorter than the index of the current word</span>
+<span class="lineno">15</span> <span class="c"># then the current word is empty. Otherwise it is the last</span>
+<span class="lineno">16</span> <span class="c"># element in the list.</span>
+<span class="lineno">17</span> <span class="n">cur</span> <span class="o">=</span> <span class="s">&quot;&quot;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">all</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">index</span> <span class="k">else</span> <span class="nb">all</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+<span class="lineno">18</span> <span class="n">prev</span> <span class="o">=</span> <span class="nb">all</span><span class="p">[</span><span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="c"># Item before the current.</span>
+<span class="lineno">19</span> <span class="nb">all</span> <span class="o">=</span> <span class="nb">all</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="c"># Strip off the command name from the beginning.</span>
+<span class="lineno">20</span> 
+<span class="lineno">21</span> <span class="k">if</span> <span class="n">prev</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">all</span><span class="p">:</span>
+<span class="lineno">22</span>     <span class="c"># prev must be the command itself. Return subcommands.</span>
+<span class="lineno">23</span>     <span class="k">print</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span>
+<span class="lineno">24</span> <span class="k">else</span><span class="p">:</span>
+<span class="lineno">25</span>     <span class="c"># Find the subcommands already present.</span>
+<span class="lineno">26</span>     <span class="n">command_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">word</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="nb">all</span> <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">commands</span><span class="p">]</span>
+<span class="lineno">27</span>     <span class="k">if</span> <span class="n">command_list</span><span class="p">:</span>
+<span class="lineno">28</span>         <span class="c"># Send back options of latest subcommand.</span>
+<span class="lineno">29</span>         <span class="n">opts</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="n">command_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+<span class="lineno">30</span>         <span class="k">print</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">opt</span> <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">opts</span> <span class="k">if</span> <span class="n">opt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">all</span><span class="p">])</span>
+<span class="lineno">31</span>     <span class="k">else</span><span class="p">:</span>
+<span class="lineno">32</span>         <span class="c"># No completions to be had.</span>
+<span class="lineno">33</span>         <span class="k">print</span> <span class="s">&quot;&quot;</span>
+</pre></div>
+<p>Note that the <tt class="docutils literal">cur</tt> variable isn't used but is provided in order to illustrate how to get the same value as in the bash script above. The <tt class="docutils literal">all</tt> variable contains all arguments, stripping out the name of the script (<tt class="docutils literal">argv[0]</tt>) and the name of the command being completed (i.e. <tt class="docutils literal">blog</tt> in this example.) This is a fairly simple multi-level script that has a list of options for the subcommands provided.</p>
+<p>More complex scripts could be created - with much more ease and readability than if they had been written in bash. I have written a small command framework in Ruby which uses the Trollop option parser to parse the command line. Using the parser method in Trollop, it is fairly easy to create a program which defines subcommands, where those subcommands provide their own option parser. The Trollop parsers can be queried for the purposes of auto-completion. This may make up a future post.</p>
+</div>
+
+            </div>
+            <!-- /.entry-content -->
+    <hr />
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'Velocity'; // required: replace example with your forum shortname
+            var disqus_identifier = 'Complex commandline completion in the bash shell';
+            var disqus_url = '/Complex commandline completion in the bash shell.html';
+            var disqus_config = function () {
+                this.language = "en";
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3 well well-sm" id="sidebar">
+
+<aside>
+    <section>
+        <ul class="list-group list-group-flush">
+                <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+                  <ul class="list-group" id="social">
+                    <li class="list-group-item"><a href="https://github.com/antroy"><i
+                            class="fa fa-@antroy at github-square fa-lg"></i> @antroy at GitHub
+                    </a></li>
+                    <li class="list-group-item"><a href="https://twitter.com/antroy"><i
+                            class="fa fa-@antroy at twitter-square fa-lg"></i> @antroy at Twitter
+                    </a></li>
+                  </ul>
+                </li>
+
+
+
+                <li class="list-group-item"><a href="/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+                    <ul class="list-group" id="tags">
+                        <li class="list-group-item tag-1">
+                            <a href="/tag/coding.html">
+                                coding
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="/tag/bash.html">
+                                bash
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="/tag/autocomplete.html">
+                                autocomplete
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="/tag/puppet.html">
+                                puppet
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="/tag/git.html">
+                                git
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="/tag/deployment.html">
+                                deployment
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="/tag/python.html">
+                                python
+                            </a>
+                        </li>
+                    </ul>
+                </li>    
+    <li class="list-group-item"><h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+      <ul class="list-group" id="links">
+        <li class="list-group-item">
+            <a href="http://getpelican.com/" target="_blank">
+                Pelican
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://python.org/" target="_blank">
+                Python.org
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://xkcd.org/" target="_blank">
+                xkcd
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://www.systemcomic.com/" target="_blank">
+                The System
+            </a>
+        </li>
+      </ul>
+    </li>
+
+        </ul>
+    </section>
+
+</aside>        </div>
+    </div>
+</div>
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2014 Anthony Roy
+            &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="http://code.jquery.com/jquery.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="/theme/js/respond.min.js"></script>
+
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'Velocity'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+</body>
+</html>

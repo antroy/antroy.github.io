@@ -3,7 +3,7 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>The Git Phoenix - Anthony Roy</title>
+    <title>Deploying with the Git Phoenix Script - Anthony Roy</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -12,16 +12,16 @@
 
     <!-- Open Graph tags -->
             <meta property="og:type" content="article"/>
-            <meta property="og:title" content="The Git Phoenix"/>
-            <meta property="og:url" content="http://antroy.github.io/Git push for code deployment using Puppet.html"/>
+            <meta property="og:title" content="Deploying with the Git Phoenix Script"/>
+            <meta property="og:url" content="/Git push for code deployment using Puppet.html"/>
             <meta property="og:description" content="A technique for managing a small number of machines using Puppet and git"/>
 
     <!-- Bootstrap -->
-        <link rel="stylesheet" href="http://antroy.github.io/theme/css/bootstrap.min.css" type="text/css"/>
-    <link href="http://antroy.github.io/theme/css/font-awesome.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="/theme/css/bootstrap.cerulean.min.css" type="text/css"/>
+    <link href="/theme/css/font-awesome.min.css" rel="stylesheet">
 
-    <link href="http://antroy.github.io/theme/css/pygments/native.css" rel="stylesheet">
-    <link rel="stylesheet" href="http://antroy.github.io/theme/css/style.css" type="text/css"/>
+    <link href="/theme/css/pygments/native.css" rel="stylesheet">
+    <link rel="stylesheet" href="/theme/css/style.css" type="text/css"/>
 
 
 </head>
@@ -36,18 +36,18 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a href="http://antroy.github.io/" class="navbar-brand">
+            <a href="/" class="navbar-brand">
 Anthony Roy            </a>
         </div>
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav">
                     <li><a href="tags.html">Tags</a></li>
                         <li class="active">
-                            <a href="http://antroy.github.io/category/programming.html">Programming</a>
+                            <a href="/category/programming.html">Programming</a>
                         </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="http://antroy.github.io/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+                <li><a href="/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
             </ul>
         </div>
         <!-- /.navbar-collapse -->
@@ -62,10 +62,10 @@ Anthony Roy            </a>
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="http://antroy.github.io/Git push for code deployment using Puppet.html"
+                    <a href="/Git push for code deployment using Puppet.html"
                        rel="bookmark"
-                       title="Permalink to The Git Phoenix">
-                        The Git Phoenix
+                       title="Permalink to Deploying with the Git Phoenix Script">
+                        Deploying with the Git Phoenix Script
                     </a>
                 </h1>
             </header>
@@ -81,13 +81,13 @@ Anthony Roy            </a>
 
 
 <span class="label label-default">Tags</span>
-	<a href="http://antroy.github.io/tag/git.html">git</a>
+	<a href="/tag/git.html">git</a>
         /
-	<a href="http://antroy.github.io/tag/coding.html">coding</a>
+	<a href="/tag/coding.html">coding</a>
         /
-	<a href="http://antroy.github.io/tag/deployment.html">deployment</a>
+	<a href="/tag/deployment.html">deployment</a>
         /
-	<a href="http://antroy.github.io/tag/puppet.html">puppet</a>
+	<a href="/tag/puppet.html">puppet</a>
     
 </footer><!-- /.post-info -->                    </div>
                 </div>
@@ -154,26 +154,14 @@ ln -s $PHEONIX $GIT_REPO/.git/hooks/post-receive
             </div>
             <!-- /.entry-content -->
     <hr />
-<!-- AddThis Button BEGIN -->
-<div class="addthis_toolbox addthis_default_style addthis_16x16_style">
-<a class="addthis_button_facebook"></a>
-<a class="addthis_button_twitter"></a>
-<a class="addthis_button_google_plusone_share"></a>
-<a class="addthis_button_pinterest_share"></a>
-<a class="addthis_button_compact"></a><a class="addthis_counter addthis_bubble_style"></a>
-</div>
-<script type="text/javascript">var addthis_config = {"data_track_addressbar":true};</script>
-<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-52f76e637a77ab77"></script>
-<!-- AddThis Button END -->
-    <hr />
     <section class="comments" id="comments">
         <h2>Comments</h2>
         <div id="disqus_thread"></div>
         <script type="text/javascript">
             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-            var disqus_shortname = 'antroy'; // required: replace example with your forum shortname
+            var disqus_shortname = 'Velocity'; // required: replace example with your forum shortname
             var disqus_identifier = 'Git push for code deployment using Puppet';
-            var disqus_url = 'http://antroy.github.io/Git push for code deployment using Puppet.html';
+            var disqus_url = '/Git push for code deployment using Puppet.html';
             var disqus_config = function () {
                 this.language = "en";
             };
@@ -204,42 +192,67 @@ ln -s $PHEONIX $GIT_REPO/.git/hooks/post-receive
                 <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
                   <ul class="list-group" id="social">
                     <li class="list-group-item"><a href="https://github.com/antroy"><i
-                            class="fa fa-github-square fa-lg"></i> GitHub
+                            class="fa fa-@antroy at github-square fa-lg"></i> @antroy at GitHub
                     </a></li>
-                    <li class="list-group-item"><a href="http://www.linkedin.com/profile/view?id=5882934"><i
-                            class="fa fa-linkedin-square fa-lg"></i> LinkedIn
+                    <li class="list-group-item"><a href="https://twitter.com/antroy"><i
+                            class="fa fa-@antroy at twitter-square fa-lg"></i> @antroy at Twitter
                     </a></li>
                   </ul>
                 </li>
 
 
 
-                <li class="list-group-item"><a href="http://antroy.github.io/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+                <li class="list-group-item"><a href="/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
                     <ul class="list-group" id="tags">
-                        <li class="list-group-item tag-4">
-                            <a href="http://antroy.github.io/tag/deployment.html">
-                                deployment
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://antroy.github.io/tag/puppet.html">
-                                puppet
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://antroy.github.io/tag/coding.html">
+                        <li class="list-group-item tag-1">
+                            <a href="/tag/coding.html">
                                 coding
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://antroy.github.io/tag/git.html">
+                            <a href="/tag/bash.html">
+                                bash
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="/tag/autocomplete.html">
+                                autocomplete
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="/tag/puppet.html">
+                                puppet
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="/tag/git.html">
                                 git
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="/tag/deployment.html">
+                                deployment
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="/tag/python.html">
+                                python
                             </a>
                         </li>
                     </ul>
                 </li>    
     <li class="list-group-item"><h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
       <ul class="list-group" id="links">
+        <li class="list-group-item">
+            <a href="http://getpelican.com/" target="_blank">
+                Pelican
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://python.org/" target="_blank">
+                Python.org
+            </a>
+        </li>
         <li class="list-group-item">
             <a href="http://xkcd.org/" target="_blank">
                 xkcd
@@ -248,11 +261,6 @@ ln -s $PHEONIX $GIT_REPO/.git/hooks/post-receive
         <li class="list-group-item">
             <a href="http://www.systemcomic.com/" target="_blank">
                 The System
-            </a>
-        </li>
-        <li class="list-group-item">
-            <a href="http://www.yehudamoon.com/" target="_blank">
-                Yehuda Moon
             </a>
         </li>
       </ul>
@@ -269,11 +277,9 @@ ln -s $PHEONIX $GIT_REPO/.git/hooks/post-receive
       <hr>
       <div class="row">
          <div class="col-xs-10">&copy; 2014 Anthony Roy
-            &middot; Powered by
-            <a href="http://www.python.org/" target="_blank">Python</a>,
+            &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
-            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>. Template based on
-            <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,         </div>
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
          <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
       </div>
    </div>
@@ -281,14 +287,14 @@ ln -s $PHEONIX $GIT_REPO/.git/hooks/post-receive
 <script src="http://code.jquery.com/jquery.js"></script>
 
 <!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="http://antroy.github.io/theme/js/bootstrap.min.js"></script>
+<script src="/theme/js/bootstrap.min.js"></script>
 
 <!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
-<script src="http://antroy.github.io/theme/js/respond.min.js"></script>
+<script src="/theme/js/respond.min.js"></script>
 
     <script type="text/javascript">
         /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-        var disqus_shortname = 'antroy'; // required: replace example with your forum shortname
+        var disqus_shortname = 'Velocity'; // required: replace example with your forum shortname
 
         /* * * DON'T EDIT BELOW THIS LINE * * */
         (function () {
