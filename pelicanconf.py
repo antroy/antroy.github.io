@@ -36,7 +36,7 @@ SOCIAL = (
          )
 
 DEFAULT_PAGINATION = False
-DISQUS_SITENAME = "Velocity"
+DISQUS_SITENAME = "antroy"
 PYGMENTS_RST_OPTIONS = {'linenos': 'inline'}
 READERS = {'rest': RstReader, 'rest.txt': RstReader}
 # Uncomment following line if you want document-relative URLs when developing
