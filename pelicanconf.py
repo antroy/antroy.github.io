@@ -37,6 +37,9 @@ SOCIAL = (
 
 DEFAULT_PAGINATION = False
 DISQUS_SITENAME = "antroy"
+
+ADDTHIS_PROFILE = 'ra-52f76e637a77ab77'
+
 PYGMENTS_RST_OPTIONS = {'linenos': 'inline'}
 READERS = {'rest': RstReader, 'rest.txt': RstReader}
 # Uncomment following line if you want document-relative URLs when developing
