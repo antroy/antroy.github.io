@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- #
 from __future__ import unicode_literals
+from pelican.readers import *
 
 AUTHOR = u'Anthony Roy'
 SITENAME = u'Anthony Roy'
@@ -29,12 +30,14 @@ LINKS =  (('Pelican', 'http://getpelican.com/'),
          )
 
 # Social widget
-SOCIAL = (('@antroy at GitHub', 'https://github.com/antroy'),
+SOCIAL = (
+        ('@antroy at GitHub', 'https://github.com/antroy'),
+        ('@antroy at Twitter', 'https://twitter.com/antroy'),
          )
 
 DEFAULT_PAGINATION = False
 DISQUS_SITENAME = "Velocity"
 PYGMENTS_RST_OPTIONS = {'linenos': 'inline'}
-
+READERS = {'rest': RstReader, 'rest.txt': RstReader}
 # Uncomment following line if you want document-relative URLs when developing
 #RELATIVE_URLS = True
