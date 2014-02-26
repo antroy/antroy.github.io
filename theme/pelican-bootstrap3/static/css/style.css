@@ -2,6 +2,11 @@ body {
     padding-top: 70px;
 }
 
+div.navigation {
+    font-weight: bold;
+    text-align: center;
+}
+
 #sidebar .list-group, #sidebar .list-group-item {
     background-color: transparent;
 }

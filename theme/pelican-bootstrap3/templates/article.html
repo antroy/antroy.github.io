@@ -38,6 +38,21 @@
                 </div>
                 {{ article.content }}
             </div>
+            <div class="navigation">
+                {% if article.prev_article %}
+                       &lt;  <a href="{{ SITEURL }}/{{ article.prev_article.url}}">
+                            {{ article.prev_article.title }}
+                        </a>
+                {% endif %}
+                {% if article.next_article and article.prev_article %}
+                |
+                {% endif %}
+                {% if article.next_article %}
+                        <a href="{{ SITEURL }}/{{ article.next_article.url}}">
+                            {{ article.next_article.title }}
+                        </a> &gt;
+                {% endif %}
+            </div>
             <!-- /.entry-content -->
             {% include 'includes/related-posts.html' %}
             {% include 'includes/addthis.html' %}

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*- #
 from __future__ import unicode_literals
 from pelican.readers import *
+import sys, os
 
 AUTHOR = u'Anthony Roy'
 SITENAME = u'Anthony Roy'
@@ -42,5 +43,11 @@ ADDTHIS_PROFILE = 'ra-52f76e637a77ab77'
 
 PYGMENTS_RST_OPTIONS = {'linenos': 'inline'}
 READERS = {'rest': RstReader, 'rest.txt': RstReader}
-# Uncomment following line if you want document-relative URLs when developing
-RELATIVE_URLS = False
+
+RELATIVE_URLS = True if os.environ.has_key("ENV") and os.environ["ENV"] == "dev" else False
+
+if RELATIVE_URLS:
+    print "Using relative URLS for links"
+
+PLUGIN_PATH = '../pelican-plugins'
+PLUGINS = ['neighbors']
