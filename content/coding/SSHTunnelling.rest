@@ -35,52 +35,30 @@ The second example shows how we can expose a port (8080) on a server we have ssh
 SSH Reverse Tunnel
 ------------------
 
-Reverse tunnels solve the opposite problem. TODO: Expand.
+Reverse tunnels solve the opposite problem. Your computer is running a version of an API that you are developing, and you want to temporarily point an application on a test server at the API on your computer. Due to the way the networks and firewalls are configured, there is no access from the test server to port 80 on your machine. This is where reverse tunnels come in.
 
-{{{bash
-ssh -R <remote_port>:localhost:<local_port> <remote_user>@<remote_host>
+.. code-block:: bash
+    
+    ssh -R <remote_port>:destination_host:destination_port <remote_user>@<remote_host>
 
-e.g.
+For the above example, this may be something like:
 
-ssh -R 19999:localhost:22 sourceuser@138.47.99.99
-}}}
+.. code-block:: bash
 
-The above sets up a reverse tunnel from the server 138.47.99.99 to your local machine using port 19999. This means that if you are on that remote machine (and assuming you cannot get to port 22 on your machine from the remote one) you can ssh onto your machine using:
+    ssh -R 1234:localhost:80 sourceuser@jumphost
 
-{{{bash
-ssh localhost -p 19999
-}}}
+The above sets up a reverse tunnel from the server jumphost to your local machine using port 1234. This allows you to hook up your remote application to your PC to consume your development endpoint by configuring it to point at port 1234 on jumphost.
 
-Note - keep the session alive by opening a screen session on the remote server from your machine and running 'top' or similar in that session.
+Other examples may be to allow you to ssh from one box to another when they are on separate NAT'd networks via a host or hosts available to both over ssh. In such a case you may need a combination of reverse and forward tunnels to provide the connectivity you want. This sort of tunnel chaining can also be used to set up ad hoc VPN's for services - all data over the tunnel is (by nature of being SSH) encrypted.
 
-#Combined tunnel - ssh onto one of your machines from another via a middle server.
+Dealing with SSH Timeouts
+-------------------------
 
-Say you have two machines (adam and bob) on different networks and you are not able to ssh from one to the other. Both have access to a third machine (malcolm) however. You can use that third machine to tunnel directly from the first to the second as follows:
+Quite often policy demands that your SSH sessions are configured to time out after a period of inactivity. This is obviously not very useful if you need to set up tunnels. A common technique is to set a program like ``top`` or ``watch "date"`` or similar to keep the session reporting data over the connection and hence keeping the session alive.
 
-On machine adam set up a tunnel to malcolm:
-{{{
-ssh -L 1234:localhost:1235 malcolm
-}}}
+If doing something like this, it is a good idea to do so on top of a ``screen`` session, since you can easily then open a new screen if you need to do work on the box you are ssh-ing onto.
 
-On machine bob set up a reverse tunnel to malcolm:
-{{{
-ssh -R 1235:localhost:22 malcolm
-}}}
+Managing Keys
+-------------
 
-On machine adam, ssh to bob with:
-{{{
-ssh -p 1234 localhost
-}}}
-
-The connections are as follows:
-{{{
-adam -> adam:1234 -> malcolm:1234 -> malcolm:1235 -> bob:22
-}}}
-
-Blah blah ssh tunnel balhe.
-
-Example::
-
-    ssh -R 1234:localhost:22 me@myserver:1234
-
-Other text
+SSH Keys provide a solution to having to log in to a server with your credentials every time you want to ssh onto a box. The idea is that you generate a private/public key pair and copy the public one onto the servers you want to access. When you ssh onto those machines, the ssh protocol looks up your default key (or uses one you have specified on the command line) and sends it over the wire in place of a password.
