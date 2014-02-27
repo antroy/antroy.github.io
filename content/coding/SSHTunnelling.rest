@@ -62,3 +62,38 @@ Managing Keys
 -------------
 
 SSH Keys provide a solution to having to log in to a server with your credentials every time you want to ssh onto a box. The idea is that you generate a private/public key pair and copy the public one onto the servers you want to access. When you ssh onto those machines, the ssh protocol looks up your default key (or uses one you have specified on the command line) and sends it over the wire in place of a password.
+
+Generating a key is simple:
+
+.. code-block:: bash
+  
+    ssh-keygen
+
+This command will prompt you for a filename for the (private) key, and a passphrase to keep the key secure, and then generates a public/private key pair. The private key should always remain on your machine, but the public key may be copied wherever you need it to be. Github for example requires an ssh key in order for you to connect to it via the git protocol. Note that it is easiest to accept the default key file, as most ssh tools assume that that is where your key is. If you choose to put it elsewhere, you will have to specify the key to the command (typically with the -i option) or set it in your ssh config file (see below).
+
+Enabling key based authentication is simply a matter of adding your public key to the ``~/.ssh/authorized_keys`` file on the server you wish to authenticate on. This should be the text content of the public key on its own line in the ``authorized_keys`` file. A command which makes this very easy is the following:
+
+.. code-block:: bash
+
+    ssh-copy-id user@host
+
+This will put your key in the ``authorized_keys`` file on the host machine - but this time will ask you to provide your password. Subsequent ssh commands will be allowed straight in.
+
+Managing SSH Servers
+--------------------
+
+It is hard to remember all of the names or IP addresses of the servers you deal with on a daily basis, so a way of managing them is desirable. This is where the ``~/.ssh/config`` file comes in. It has a pretty simple format:
+
+.. code-block::
+
+    Host dev-box
+    HostName lnx07zz01.mydomain
+    User antroy
+    
+    Host prod
+    HostName lnx07zz01.mydomain
+    User antroy
+    IdentityFile ~/.ssh/prod_key
+    
+
+
