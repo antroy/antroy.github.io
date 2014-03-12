@@ -118,6 +118,19 @@ SSH Agent and Storing Unlocked SSH Keys
 
 Clearly someone had realised the futility of ssh key-based access to servers when the private keys are passphrase protected and so part of the suite of ssh tools is the ssh-agent program. This needs to be started when the users shell starts (typically the xsession or login session) and the keys added to the agent. The agent will prompt for passphrases for those keys once at the start of your session, and from then on will serve the unlocked keys to the ssh program.
 
+On recent versions of Ubuntu the xsession starts with ssh-agent running. Other distros may differ and you may need to have your login startup file run ssh-agent. To add your keys and ensure that you get asked for the passphrase the first time you use the key, then add the following to your .bashrc or .profile:
+
+.. code-block:: bash
+    
+    export SSH_ASKPASS=/usr/bin/ssh-askpass
+    ssh-add </dev/null
+
+Note - ssh-add will add your default keys to the agent. i.e. ~/.ssh/id_rsa and friends. To add other keys explicitly, they can be specified as a parameter to ssh-add. e.g.
+
+.. code-block:: bash
+    
+    ssh-add ~/.ssh/dev_id ~/.ssh/prod_id </dev/null
+
 World as it should be
     I set a passphrase on my private key and enter that passphrase when my computer starts up - and that passphrase is remembered by the ssh-agent for the duration of my session. Even better - if you have a password manager running (from Gnome or KDE for example) it will remember the passwords you give to the ssh-agent, so you only need to authenticate once for your password manager in order for the passphrases for all of your keys to be stored.
 
