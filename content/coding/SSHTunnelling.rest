@@ -82,9 +82,9 @@ This will put your key in the ``authorized_keys`` file on the host machine - but
 Managing SSH Servers
 --------------------
 
-It is hard to remember all of the names or IP addresses of the servers you deal with on a daily basis, so a way of managing them is desirable. This is where the ``~/.ssh/config`` file comes in. It has a pretty simple format:
+Unless you have a solution such as Kerberos based authentication for your servers, it can be hard to remember all of the hostnames of the servers you deal with on a daily basis and the usernames you need to log in with, so a way of managing them is desirable. This is where the ``~/.ssh/config`` file comes in. It has a pretty simple format:
 
-.. code-block::
+.. code-block:: bash
 
     Host dev-box
     HostName lnx07zz01.mydomain
@@ -95,5 +95,30 @@ It is hard to remember all of the names or IP addresses of the servers you deal 
     User antroy
     IdentityFile ~/.ssh/prod_key
     
+The examples above include a simple entry that associates an alias for the user 'antroy' on the given host. The second example also provides a different ssh key than the default (~/.ssh/id_rsa.) This allows you to specify different keys for different machines to help prevent the loss of a private key compromising all of the machines you log in to. 
 
+Managing SSH Keys
+-----------------
 
+Having a private ssh key can be useful, but as noted above a potential security risk. If you lose your private key anyone has access to any server that has your public key in its authorized_keys file. This risk can be mitigated to a large extent by securing the private key with a passphrase when the key is generated. Now, to use your private key you will need to type the passphrase. But wait a minute...
+
+Old world
+    I need to log in to many different servers with a password. If I'm lucky all of my credentials are the same, but possibly not.
+
+Intermediate world
+    I set up a key pair with no passphrase, and now I can log into all of those boxes without a password. Sweet. But insecure...
+
+New world
+    I set a passphrase on my private key. We are secure again. But I again have to type in a passphrase every time I ssh onto a server. Only very marginally better than the old world since the password is at least the same for every box - though I have to go to the trouble of installing my key on each box.
+
+Enter the ssh-agent program.
+
+SSH Agent and Storing Unlocked SSH Keys
+---------------------------------------
+
+Clearly someone had realised the futility of ssh key-based access to servers when the private keys are passphrase protected and so part of the suite of ssh tools is the ssh-agent program. This needs to be started when the users shell starts (typically the xsession or login session) and the keys added to the agent. The agent will prompt for passphrases for those keys once at the start of your session, and from then on will serve the unlocked keys to the ssh program.
+
+World as it should be
+    I set a passphrase on my private key and enter that passphrase when my computer starts up - and that passphrase is remembered by the ssh-agent for the duration of my session. Even better - if you have a password manager running (from Gnome or KDE for example) it will remember the passwords you give to the ssh-agent, so you only need to authenticate once for your password manager in order for the passphrases for all of your keys to be stored.
+
+The ssh suite of programs are useful, versatile and should be a part of any developer or operations engineer's toolbox.
