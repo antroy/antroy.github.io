@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:og="http://ogp.me/ns#"
+      xmlns:fb="https://www.facebook.com/2008/fbml">
+<head>
+    <title>SSH Tunnels - and other SSH Tricks - Anthony Roy</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+
+    <!-- Open Graph tags -->
+            <meta property="og:type" content="article"/>
+            <meta property="og:title" content="SSH Tunnels - and other SSH Tricks"/>
+            <meta property="og:url" content="http://antroy.github.io/Tunnels and other SSH tips..html"/>
+            <meta property="og:description" content="SSH Tunnels are a useful tool, especially when working in an environment that is heavily firewalled or has a complex network infrastructure. This post shows how and why you might use them and other SSH tips."/>
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="http://antroy.github.io/theme/css/bootstrap.cerulean.min.css" type="text/css"/>
+    <link href="http://antroy.github.io/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="http://antroy.github.io/theme/css/pygments/native.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://antroy.github.io/theme/css/style.css" type="text/css"/>
+
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="http://antroy.github.io/" class="navbar-brand">
+Anthony Roy            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="tags.html">Tags</a></li>
+                        <li class="active">
+                            <a href="http://antroy.github.io/category/programming.html">Programming</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="http://antroy.github.io/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="http://antroy.github.io/Tunnels and other SSH tips..html"
+                       rel="bookmark"
+                       title="Permalink to SSH Tunnels - and other SSH Tricks">
+                        SSH Tunnels - and other SSH Tricks
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2014-02-25T20:25:00"> Tue 25 February 2014</time>
+    </span>
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://antroy.github.io/tag/coding.html">coding</a>
+        /
+	<a href="http://antroy.github.io/tag/ssh.html">ssh</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>Tunnelling is a really useful way to get connectivity to services on other machines where firewall restrictions would otherwise stop you from getting that connectivity. Use cases for this include gaining access to services in test environments from your development machine in order to test your applications against real endpoints or connecting from a laptop over VPN to a desktop machine. The following examples show forward and reverse tunnels and how they can be combined to tunnel from one machine to another via a third that both can access.</p>
+<div class="section" id="ssh-tunnel">
+<h2>SSH Tunnel</h2>
+<p>The basic command for setting up a tunnel is as follows:</p>
+<div class="highlight"><pre><span class="lineno">1</span> ssh -L &lt;local_port&gt;:&lt;destination_host&gt;:&lt;destination_port&gt; &lt;remote_user&gt;@&lt;remote_host&gt;
+</pre></div>
+<p>The following commandline snippets show how you can tunnel through ssh in order to ftp a file onto a remote box and how to access a web port on a remote server locally.</p>
+<div class="highlight"><pre><span class="lineno">1</span> ssh -L 1234:ftp_server:21 middleman@188.88.88.88
+<span class="lineno">2</span> ssh -L 80:middleman:8080 middleman@188.88.88.88
+</pre></div>
+<p>In the first example we set up the tunnel through a middleman server (jump host) that we have access to, and that <em>does</em> have access to port 21 on ftp_server. We can then ftp to and from ftp_server by connecting the FTP client to port 1234 on our local machine.</p>
+<p>The second example shows how we can expose a port (8080) on a server we have ssh access to locally. This is useful if we have code deployed to a local machine that needs access to a service on a test server, but access restrictions stop us connecting to the relevant port directly. In this case we do have ssh access to the remote server we are trying to access the service on, we just don't have access to the port we need (8080 in this case). The tunnel forwards port 80 on our machine to port 8080 on the test server.</p>
+</div>
+<div class="section" id="ssh-reverse-tunnel">
+<h2>SSH Reverse Tunnel</h2>
+<p>Reverse tunnels solve the opposite problem. Your computer is running a version of an API that you are developing, and you want to temporarily point an application on a test server at the API on your computer. Due to the way the networks and firewalls are configured, there is no access from the test server to port 80 on your machine. This is where reverse tunnels come in.</p>
+<div class="highlight"><pre><span class="lineno">1</span> ssh -R &lt;remote_port&gt;:destination_host:destination_port &lt;remote_user&gt;@&lt;remote_host&gt;
+</pre></div>
+<p>For the above example, this may be something like:</p>
+<div class="highlight"><pre><span class="lineno">1</span> ssh -R 1234:localhost:80 sourceuser@jumphost
+</pre></div>
+<p>The above sets up a reverse tunnel from the server '<tt class="docutils literal">jumphost</tt>' (a box which you have ssh access to from your laptop and which the test server has access to port 1234) to your laptop using port 1234. This allows you to hook up the remote application on the test server to consume your development endpoint by configuring it to point at port 1234 on '<tt class="docutils literal">jumphost</tt>'.</p>
+<p>Other examples may be to allow you to ssh from one box to another when they are on separate NAT'd networks via a host or hosts available to both over ssh. In such a case you may need a combination of reverse and forward tunnels to provide the connectivity you want. This sort of tunnel chaining can also be used to set up ad hoc VPN's for services - all data over the tunnel is (by nature of being SSH) encrypted.</p>
+</div>
+<div class="section" id="dealing-with-ssh-timeouts">
+<h2>Dealing with SSH Timeouts</h2>
+<p>Quite often policy demands that your SSH sessions are configured to time out after a period of inactivity. This is obviously not very useful if you need to set up tunnels. A common technique is to set a program like <tt class="docutils literal">top</tt> or <tt class="docutils literal">watch &quot;date&quot;</tt> or similar to keep the session reporting data over the connection and hence keeping the session alive.</p>
+<p>If doing something like this, it is a good idea to do so on top of a <tt class="docutils literal">screen</tt> session, since you can easily then open a new screen if you need to do work on the box you are ssh-ing onto.</p>
+</div>
+<div class="section" id="managing-keys">
+<h2>Managing Keys</h2>
+<p>SSH Keys provide a solution to having to log in to a server with your credentials every time you want to ssh onto a box. The idea is that you generate a private/public key pair and copy the public one onto the servers you want to access. When you ssh onto those machines, the ssh protocol looks up your default key (or uses one you have specified on the command line) and sends it over the wire in place of a password.</p>
+<p>Generating a key is simple:</p>
+<div class="highlight"><pre><span class="lineno">1</span> ssh-keygen
+</pre></div>
+<p>This command will prompt you for a filename for the (private) key, and a passphrase to keep the key secure, and then generates a public/private key pair. The private key should always remain on your machine, but the public key may be copied wherever you need it to be. Github for example requires an ssh key in order for you to connect to it via the git protocol. Note that it is easiest to accept the default key file, as most ssh tools assume that that is where your key is. If you choose to put it elsewhere, you will have to specify the key to the command (typically with the -i option) or set it in your ssh config file (see below).</p>
+<p>Enabling key based authentication is simply a matter of adding your public key to the <tt class="docutils literal"><span class="pre">~/.ssh/authorized_keys</span></tt> file on the server you wish to authenticate on. This should be the text content of the public key on its own line in the <tt class="docutils literal">authorized_keys</tt> file. A command which makes this very easy is the following:</p>
+<div class="highlight"><pre><span class="lineno">1</span> ssh-copy-id user@host
+</pre></div>
+<p>This will put your key in the <tt class="docutils literal">authorized_keys</tt> file on the host machine - but this time will ask you to provide your password. Subsequent ssh commands will be allowed straight in.</p>
+</div>
+<div class="section" id="managing-ssh-servers">
+<h2>Managing SSH Servers</h2>
+<p>Unless you have a solution such as Kerberos based authentication for your servers, it can be hard to remember all of the hostnames of the servers you deal with on a daily basis and the usernames you need to log in with, so a way of managing them is desirable. This is where the <tt class="docutils literal"><span class="pre">~/.ssh/config</span></tt> file comes in. It has a pretty simple format:</p>
+<div class="highlight"><pre><span class="lineno">1</span> Host dev-box
+<span class="lineno">2</span> HostName lnx07zz01.mydomain
+<span class="lineno">3</span> User antroy
+<span class="lineno">4</span> 
+<span class="lineno">5</span> Host prod
+<span class="lineno">6</span> HostName lnx07zz01.mydomain
+<span class="lineno">7</span> User antroy
+<span class="lineno">8</span> IdentityFile ~/.ssh/prod_key
+</pre></div>
+<p>The examples above include a simple entry that associates an alias for the user 'antroy' on the given host. The second example also provides a different ssh key than the default (~/.ssh/id_rsa.) This allows you to specify different keys for different machines to help prevent the loss of a private key compromising all of the machines you log in to.</p>
+</div>
+<div class="section" id="managing-ssh-keys">
+<h2>Managing SSH Keys</h2>
+<p>Having a private ssh key can be useful, but as noted above a potential security risk. If you lose your private key anyone has access to any server that has your public key in its authorized_keys file. This risk can be mitigated to a large extent by securing the private key with a passphrase when the key is generated. Now, to use your private key you will need to type the passphrase. But wait a minute...</p>
+<dl class="docutils">
+<dt>Old world</dt>
+<dd>I need to log in to many different servers with a password. If I'm lucky all of my credentials are the same, but possibly not.</dd>
+<dt>Intermediate world</dt>
+<dd>I set up a key pair with no passphrase, and now I can log into all of those boxes without a password. Sweet. But insecure...</dd>
+<dt>New world</dt>
+<dd>I set a passphrase on my private key. We are secure again. But I again have to type in a passphrase every time I ssh onto a server. Only very marginally better than the old world since the password is at least the same for every box - though I have to go to the trouble of installing my key on each box.</dd>
+</dl>
+<p>Enter the ssh-agent program.</p>
+</div>
+<div class="section" id="ssh-agent-and-storing-unlocked-ssh-keys">
+<h2>SSH Agent and Storing Unlocked SSH Keys</h2>
+<p>Clearly someone had realised the futility of ssh key-based access to servers when the private keys are passphrase protected and so part of the suite of ssh tools is the ssh-agent program. This needs to be started when the users shell starts (typically the xsession or login session) and the keys added to the agent. The agent will prompt for passphrases for those keys once at the start of your session, and from then on will serve the unlocked keys to the ssh program.</p>
+<p>On recent versions of Ubuntu the xsession starts with ssh-agent running. Other distros may differ and you may need to have your login startup file run ssh-agent. To add your keys and ensure that you get asked for the passphrase the first time you use the key, then add the following to your .bashrc or .profile:</p>
+<div class="highlight"><pre><span class="lineno">1</span> <span class="nb">export </span><span class="nv">SSH_ASKPASS</span><span class="o">=</span>/usr/bin/ssh-askpass
+<span class="lineno">2</span> ssh-add &lt;/dev/null
+</pre></div>
+<p>Note - ssh-add will add your default keys to the agent. i.e. ~/.ssh/id_rsa and friends. To add other keys explicitly, they can be specified as a parameter to ssh-add. e.g.</p>
+<div class="highlight"><pre><span class="lineno">1</span> ssh-add ~/.ssh/dev_id ~/.ssh/prod_id &lt;/dev/null
+</pre></div>
+<dl class="docutils">
+<dt>World as it should be</dt>
+<dd>I set a passphrase on my private key and enter that passphrase when my computer starts up - and that passphrase is remembered by the ssh-agent for the duration of my session. Even better - if you have a password manager running (from Gnome or KDE for example) it will remember the passwords you give to the ssh-agent, so you only need to authenticate once for your password manager in order for the passphrases for all of your keys to be stored.</dd>
+</dl>
+<p>The ssh suite of programs are useful, versatile and should be a part of any developer or operations engineer's toolbox.</p>
+</div>
+
+            </div>
+            <div class="navigation">
+                       &lt;  <a href="http://antroy.github.io/Complex commandline completion in the bash shell.html">
+                            Bash Completion
+                        </a>
+            </div>
+            <!-- /.entry-content -->
+    <hr />
+    <!-- AddThis Button BEGIN -->
+    <div class="addthis_toolbox addthis_default_style ">
+        <a class="addthis_button_preferred_1"></a>
+        <a class="addthis_button_preferred_2"></a>
+        <a class="addthis_button_preferred_3"></a>
+        <a class="addthis_button_preferred_4"></a>
+        <a class="addthis_button_compact"></a>
+        <a class="addthis_counter addthis_bubble_style"></a>
+        </div>
+        <script type="text/javascript">var addthis_config = {"data_track_addressbar":true};</script>
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-52f76e637a77ab77"></script>
+        <!-- AddThis Button END -->
+    <hr />
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'antroy'; // required: replace example with your forum shortname
+            var disqus_identifier = 'Tunnels and other SSH tips.';
+            var disqus_url = 'http://antroy.github.io/Tunnels and other SSH tips..html';
+            var disqus_config = function () {
+                this.language = "en";
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3 well well-sm" id="sidebar">
+
+<aside>
+    <section>
+        <ul class="list-group list-group-flush">
+                <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+                  <ul class="list-group" id="social">
+                    <li class="list-group-item"><a href="https://github.com/antroy"><i
+                            class="fa fa-@antroy at github-square fa-lg"></i> @antroy at GitHub
+                    </a></li>
+                    <li class="list-group-item"><a href="https://twitter.com/antroy"><i
+                            class="fa fa-@antroy at twitter-square fa-lg"></i> @antroy at Twitter
+                    </a></li>
+                  </ul>
+                </li>
+
+
+
+                <li class="list-group-item"><a href="http://antroy.github.io/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+                    <ul class="list-group" id="tags">
+                        <li class="list-group-item tag-1">
+                            <a href="http://antroy.github.io/tag/coding.html">
+                                coding
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://antroy.github.io/tag/puppet.html">
+                                puppet
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://antroy.github.io/tag/git.html">
+                                git
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://antroy.github.io/tag/ssh.html">
+                                ssh
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://antroy.github.io/tag/bash.html">
+                                bash
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://antroy.github.io/tag/deployment.html">
+                                deployment
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://antroy.github.io/tag/python.html">
+                                python
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://antroy.github.io/tag/autocomplete.html">
+                                autocomplete
+                            </a>
+                        </li>
+                    </ul>
+                </li>    
+    <li class="list-group-item"><h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+      <ul class="list-group" id="links">
+        <li class="list-group-item">
+            <a href="http://getpelican.com/" target="_blank">
+                Pelican
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://python.org/" target="_blank">
+                Python.org
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://xkcd.org/" target="_blank">
+                xkcd
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://www.systemcomic.com/" target="_blank">
+                The System
+            </a>
+        </li>
+      </ul>
+    </li>
+
+        </ul>
+    </section>
+
+</aside>        </div>
+    </div>
+</div>
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2014 Anthony Roy
+            &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="http://code.jquery.com/jquery.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="http://antroy.github.io/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="http://antroy.github.io/theme/js/respond.min.js"></script>
+
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'antroy'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+</body>
+</html>
