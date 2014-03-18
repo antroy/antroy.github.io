@@ -1,14 +1,14 @@
-SSH Tunnels - Why and How
-=========================
+SSH Tunnels - and other SSH Tricks
+==================================
 
 :date: 2014-02-25 20:25
 :modified: 2014-02-25 20:25
 :tags: coding, ssh
 :category: Programming
-:slug: SSH Tunnels
+:slug: Tunnels and other SSH tips.
 :author: Anthony Roy
 :summary: How to create tunnels and what to use them for.
-:status: draft
+:status: published
 
 Tunnelling is a really useful way to get connectivity to services on other machines where firewall restrictions would otherwise stop you from getting that connectivity. Use cases for this include gaining access to services in test environments from your development machine in order to test your applications against real endpoints or connecting from a laptop over VPN to a desktop machine. The following examples show forward and reverse tunnels and how they can be combined to tunnel from one machine to another via a third that both can access.
 
@@ -47,7 +47,7 @@ For the above example, this may be something like:
 
     ssh -R 1234:localhost:80 sourceuser@jumphost
 
-The above sets up a reverse tunnel from the server jumphost to your local machine using port 1234. This allows you to hook up your remote application to your PC to consume your development endpoint by configuring it to point at port 1234 on jumphost.
+The above sets up a reverse tunnel from the server '``jumphost``' (a box which you have ssh access to from your laptop and which the test server has access to port 1234) to your laptop using port 1234. This allows you to hook up the remote application on the test server to consume your development endpoint by configuring it to point at port 1234 on '``jumphost``'.
 
 Other examples may be to allow you to ssh from one box to another when they are on separate NAT'd networks via a host or hosts available to both over ssh. In such a case you may need a combination of reverse and forward tunnels to provide the connectivity you want. This sort of tunnel chaining can also be used to set up ad hoc VPN's for services - all data over the tunnel is (by nature of being SSH) encrypted.
 
