@@ -1,0 +1,29 @@
+Keeping Data Safe - Public Key Encryption
+=========================================
+
+:title: Keeping Data Safe - Public Key Encryption
+:date: 2014-03-19 08:21
+:modified: 2014-03-19 08:21
+:tags: bash, GPG, OpenSSL, encryption
+:category: Programming
+:slug: Keep data safe using asymmetric key encryption.
+:author: Anthony Roy
+:summary: Keeping data safe using public key encryption software such as OpenSSL and GPG.
+:status: draft
+
+It is sometimes desirable to keep information safe on your computer. The nature of digital data means that it is very easy to copy it from machine to machine and for leakage of information to become an issue. So how do you keep your sensitive information secure? Cryptography provides a solution to this, and for the purposes of encrypting digital data, there are two primary forms: Public key (asymmetric) encryption and symmetric key encryption. 
+
+Symmetric key encryption is typically used for such tasks as hard disk encryption, USB stick encryption and password databases. Any local data that you have to unlock with a password is typically symmetrically encrypted with a password protected key. 
+
+Asymmetric encryption is typically used for protecting data in transit. Symmetric encryption isn't suited to the latter since you would have to share the key and password with the person you were sending the encrypted message to. This is a large security risk, as you have to have some secure method of transferring the key and password. This problem is solved by asymmetric encryption since it works as follows.
+
+1. You create a public/private key pair. Ideally you will choose a password for the private key.
+2. You send the public key out to anyone who needs to send you anything. You could even publish it online somewhere.
+3. To send you an encrypted message, someone encrypts their message using the public key and sends it.
+4. You decrypt the message with your private key.
+
+The beauty of this is that the keys are one-way. Anything you encrypt with one key can only be decrypted using the other. This actually works both ways, and is still useful the other way for signing messages.
+
+Encryption and Decryption Using OpenSSL
+---------------------------------------
+
