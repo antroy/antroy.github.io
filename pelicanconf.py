@@ -7,12 +7,13 @@ import sys, os
 AUTHOR = u'Anthony Roy'
 SITENAME = u'Anthony Roy'
 SITEURL = 'https://antroy.github.io'
+TAGS_URL = 'tags.html'
 
 THEME = './theme/pelican-bootstrap3'
 BOOTSTRAP_THEME = 'cerulean'
-ARTICLE_PATHS = ['./content']
+ARTICLE_PATHS = ['./content/coding', './content/cycling']
 
-MENUITEMS = (('Tags', 'tags.html'),)
+MENUITEMS = (('Tags', TAGS_URL),)
 
 TIMEZONE = 'Europe/London'
 
@@ -50,4 +51,4 @@ if RELATIVE_URLS:
     print "Using relative URLS for links"
 
 PLUGIN_PATHS = ['../pelican-plugins']
-PLUGINS = ['neighbors']
+PLUGINS = ['neighbors', 'tag_cloud']

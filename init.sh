@@ -22,8 +22,8 @@ then
     pushd output
     git init
     git remote add origin git@github.com:antroy/antroy.github.io.git
-    git fetch
-    git checkout -b master
+    git pull
+    git checkout master
     git branch --set-upstream-to=origin/master master
     popd
 fi
