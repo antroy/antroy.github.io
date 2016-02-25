@@ -10,7 +10,7 @@ SITEURL = 'https://antroy.github.io'
 
 THEME = './theme/pelican-bootstrap3'
 BOOTSTRAP_THEME = 'cerulean'
-ARTICLE_DIR = './content'
+ARTICLE_PATHS = ['./content']
 
 MENUITEMS = (('Tags', 'tags.html'),)
 
@@ -49,5 +49,5 @@ RELATIVE_URLS = True if os.environ.has_key("ENV") and os.environ["ENV"] == "dev"
 if RELATIVE_URLS:
     print "Using relative URLS for links"
 
-PLUGIN_PATH = '../pelican-plugins'
+PLUGIN_PATHS = ['../pelican-plugins']
 PLUGINS = ['neighbors']
