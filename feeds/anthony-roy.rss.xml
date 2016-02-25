@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Anthony Roy</title><link>https://antroy.github.io/</link><description></description><atom:link href="https://antroy.github.io/feeds/anthony-roy.rss.xml" rel="self"></atom:link><lastBuildDate>Tue, 25 Feb 2014 20:25:00 +0000</lastBuildDate><item><title>SSH Tunnels - and other SSH Tricks</title><link>https://antroy.github.io/Tunnels%20and%20other%20SSH%20tips..html</link><description>&lt;p&gt;Tunnelling is a really useful way to get connectivity to services on other machines where firewall restrictions would otherwise stop you from getting that connectivity. Use cases for this include gaining access to services in test environments from your development machine in order to test your applications against real endpoints or connecting from a laptop over VPN to a desktop machine. The following examples show forward and reverse tunnels and how they can be combined to tunnel from one machine to another via a third that both can access.&lt;/p&gt;
+&lt;div class="section" id="ssh-tunnel"&gt;
+&lt;h2&gt;SSH Tunnel&lt;/h2&gt;
+&lt;p&gt;The basic command for setting up a tunnel is as follows:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="lineno"&gt;1 &lt;/span&gt;ssh -L &amp;lt;local_port&amp;gt;:&amp;lt;destination_host&amp;gt;:&amp;lt;destination_port&amp;gt; &amp;lt;remote_user&amp;gt;@&amp;lt;remote_host&amp;gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The following commandline snippets show how you can tunnel through ssh in order to ftp a file onto a remote box and how to access a web port on a remote server locally.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="lineno"&gt;1 &lt;/span&gt;ssh -L 1234:ftp_server:21 middleman@188.88.88.88
+&lt;span class="lineno"&gt;2 &lt;/span&gt;ssh -L 80:middleman:8080 middleman@188.88.88.88
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;In the first example we set up the tunnel through a middleman server (jump host) that we have access to, and that &lt;em&gt;does&lt;/em&gt; have access to port 21 on ftp_server. We can then ftp to and from ftp_server by connecting the FTP client to port 1234 on our local machine.&lt;/p&gt;
+&lt;p&gt;The second example shows how we can expose a port (8080) on a server we have ssh access to locally. This is useful if we have code deployed to a local machine that needs access to a service on a test server, but access restrictions stop us connecting to the relevant port directly. In this case we do have ssh access to the remote server we are trying to access the service on, we just don't have access to the port we need (8080 in this case). The tunnel forwards port 80 on our machine to port 8080 on the test server.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="ssh-reverse-tunnel"&gt;
+&lt;h2&gt;SSH Reverse Tunnel&lt;/h2&gt;
+&lt;p&gt;Reverse tunnels solve the opposite problem. Your computer is running a version of an API that you are developing, and you want to temporarily point an application on a test server at the API on your computer. Due to the way the networks and firewalls are configured, there is no access from the test server to port 80 on your machine. This is where reverse tunnels come in.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="lineno"&gt;1 &lt;/span&gt;ssh -R &amp;lt;remote_port&amp;gt;:destination_host:destination_port &amp;lt;remote_user&amp;gt;@&amp;lt;remote_host&amp;gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;For the above example, this may be something like:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="lineno"&gt;1 &lt;/span&gt;ssh -R 1234:localhost:80 sourceuser@jumphost
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The above sets up a reverse tunnel from the server '&lt;tt class="docutils literal"&gt;jumphost&lt;/tt&gt;' (a box which you have ssh access to from your laptop and which the test server has access to port 1234) to your laptop using port 1234. This allows you to hook up the remote application on the test server to consume your development endpoint by configuring it to point at port 1234 on '&lt;tt class="docutils literal"&gt;jumphost&lt;/tt&gt;'.&lt;/p&gt;
+&lt;p&gt;Other examples may be to allow you to ssh from one box to another when they are on separate NAT'd networks via a host or hosts available to both over ssh. In such a case you may need a combination of reverse and forward tunnels to provide the connectivity you want. This sort of tunnel chaining can also be used to set up ad hoc VPN's for services - all data over the tunnel is (by nature of being SSH) encrypted.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="dealing-with-ssh-timeouts"&gt;
+&lt;h2&gt;Dealing with SSH Timeouts&lt;/h2&gt;
+&lt;p&gt;Quite often policy demands that your SSH sessions are configured to time out after a period of inactivity. This is obviously not very useful if you need to set up tunnels. A common technique is to set a program like &lt;tt class="docutils literal"&gt;top&lt;/tt&gt; or &lt;tt class="docutils literal"&gt;watch &amp;quot;date&amp;quot;&lt;/tt&gt; or similar to keep the session reporting data over the connection and hence keeping the session alive.&lt;/p&gt;
+&lt;p&gt;If doing something like this, it is a good idea to do so on top of a &lt;tt class="docutils literal"&gt;screen&lt;/tt&gt; session, since you can easily then open a new screen if you need to do work on the box you are ssh-ing onto.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="managing-keys"&gt;
+&lt;h2&gt;Managing Keys&lt;/h2&gt;
+&lt;p&gt;SSH Keys provide a solution to having to log in to a server with your credentials every time you want to ssh onto a box. The idea is that you generate a private/public key pair and copy the public one onto the servers you want to access. When you ssh onto those machines, the ssh protocol looks up your default key (or uses one you have specified on the command line) and sends it over the wire in place of a password.&lt;/p&gt;
+&lt;p&gt;Generating a key is simple:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="lineno"&gt;1 &lt;/span&gt;ssh-keygen
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;This command will prompt you for a filename for the (private) key, and a passphrase to keep the key secure, and then generates a public/private key pair. The private key should always remain on your machine, but the public key may be copied wherever you need it to be. Github for example requires an ssh key in order for you to connect to it via the git protocol. Note that it is easiest to accept the default key file, as most ssh tools assume that that is where your key is. If you choose to put it elsewhere, you will have to specify the key to the command (typically with the -i option) or set it in your ssh config file (see below).&lt;/p&gt;
+&lt;p&gt;Enabling key based authentication is simply a matter of adding your public key to the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;~/.ssh/authorized_keys&lt;/span&gt;&lt;/tt&gt; file on the server you wish to authenticate on. This should be the text content of the public key on its own line in the &lt;tt class="docutils literal"&gt;authorized_keys&lt;/tt&gt; file. A command which makes this very easy is the following:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="lineno"&gt;1 &lt;/span&gt;ssh-copy-id user@host
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;This will put your key in the &lt;tt class="docutils literal"&gt;authorized_keys&lt;/tt&gt; file on the host machine - but this time will ask you to provide your password. Subsequent ssh commands will be allowed straight in.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="managing-ssh-servers"&gt;
+&lt;h2&gt;Managing SSH Servers&lt;/h2&gt;
+&lt;p&gt;Unless you have a solution such as Kerberos based authentication for your servers, it can be hard to remember all of the hostnames of the servers you deal with on a daily basis and the usernames you need to log in with, so a way of managing them is desirable. This is where the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;~/.ssh/config&lt;/span&gt;&lt;/tt&gt; file comes in. It has a pretty simple format:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="lineno"&gt;1 &lt;/span&gt;Host dev-box
+&lt;span class="lineno"&gt;2 &lt;/span&gt;HostName lnx07zz01.mydomain
+&lt;span class="lineno"&gt;3 &lt;/span&gt;User antroy
+&lt;span class="lineno"&gt;4 &lt;/span&gt;
+&lt;span class="lineno"&gt;5 &lt;/span&gt;Host prod
+&lt;span class="lineno"&gt;6 &lt;/span&gt;HostName lnx07zz01.mydomain
+&lt;span class="lineno"&gt;7 &lt;/span&gt;User antroy
+&lt;span class="lineno"&gt;8 &lt;/span&gt;IdentityFile ~/.ssh/prod_key
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The examples above include a simple entry that associates an alias for the user 'antroy' on the given host. The second example also provides a different ssh key than the default (~/.ssh/id_rsa.) This allows you to specify different keys for different machines to help prevent the loss of a private key compromising all of the machines you log in to.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="managing-ssh-keys"&gt;
+&lt;h2&gt;Managing SSH Keys&lt;/h2&gt;
+&lt;p&gt;Having a private ssh key can be useful, but as noted above a potential security risk. If you lose your private key anyone has access to any server that has your public key in its authorized_keys file. This risk can be mitigated to a large extent by securing the private key with a passphrase when the key is generated. Now, to use your private key you will need to type the passphrase. But wait a minute...&lt;/p&gt;
+&lt;dl class="docutils"&gt;
+&lt;dt&gt;Old world&lt;/dt&gt;
+&lt;dd&gt;I need to log in to many different servers with a password. If I'm lucky all of my credentials are the same, but possibly not.&lt;/dd&gt;
+&lt;dt&gt;Intermediate world&lt;/dt&gt;
+&lt;dd&gt;I set up a key pair with no passphrase, and now I can log into all of those boxes without a password. Sweet. But insecure...&lt;/dd&gt;
+&lt;dt&gt;New world&lt;/dt&gt;
+&lt;dd&gt;I set a passphrase on my private key. We are secure again. But I again have to type in a passphrase every time I ssh onto a server. Only very marginally better than the old world since the password is at least the same for every box - though I have to go to the trouble of installing my key on each box.&lt;/dd&gt;
+&lt;/dl&gt;
+&lt;p&gt;Enter the ssh-agent program.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="ssh-agent-and-storing-unlocked-ssh-keys"&gt;
+&lt;h2&gt;SSH Agent and Storing Unlocked SSH Keys&lt;/h2&gt;
+&lt;p&gt;Clearly someone had realised the futility of ssh key-based access to servers when the private keys are passphrase protected and so part of the suite of ssh tools is the ssh-agent program. This needs to be started when the users shell starts (typically the xsession or login session) and the keys added to the agent. The agent will prompt for passphrases for those keys once at the start of your session, and from then on will serve the unlocked keys to the ssh program.&lt;/p&gt;
+&lt;p&gt;On recent versions of Ubuntu the xsession starts with ssh-agent running. Other distros may differ and you may need to have your login startup file run ssh-agent. To add your keys and ensure that you get asked for the passphrase the first time you use the key, then add the following to your .bashrc or .profile:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="lineno"&gt;1 &lt;/span&gt;&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;SSH_ASKPASS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;/usr/bin/ssh-askpass
+&lt;span class="lineno"&gt;2 &lt;/span&gt;ssh-add &amp;lt;/dev/null
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Note - ssh-add will add your default keys to the agent. i.e. ~/.ssh/id_rsa and friends. To add other keys explicitly, they can be specified as a parameter to ssh-add. e.g.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="lineno"&gt;1 &lt;/span&gt;ssh-add ~/.ssh/dev_id ~/.ssh/prod_id &amp;lt;/dev/null
+&lt;/pre&gt;&lt;/div&gt;
+&lt;dl class="docutils"&gt;
+&lt;dt&gt;World as it should be&lt;/dt&gt;
+&lt;dd&gt;I set a passphrase on my private key and enter that passphrase when my computer starts up - and that passphrase is remembered by the ssh-agent for the duration of my session. Even better - if you have a password manager running (from Gnome or KDE for example) it will remember the passwords you give to the ssh-agent, so you only need to authenticate once for your password manager in order for the passphrases for all of your keys to be stored.&lt;/dd&gt;
+&lt;/dl&gt;
+&lt;p&gt;The ssh suite of programs are useful, versatile and should be a part of any developer or operations engineer's toolbox.&lt;/p&gt;
+&lt;/div&gt;
+</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Anthony Roy</dc:creator><pubDate>Tue, 25 Feb 2014 20:25:00 +0000</pubDate><guid>tag:antroy.github.io,2014-02-25:Tunnels and other SSH tips..html</guid><category>coding</category><category>ssh</category></item><item><title>Bash Completion</title><link>https://antroy.github.io/Complex%20commandline%20completion%20in%20the%20bash%20shell.html</link><description>&lt;p&gt;Bash completion can be awkward to program in bash. The docs aren't great, and the language esoteric. It would be nice to be able to use your favorite language to do the heavy lifting. This article shows how to achieve this in Python and provides an example of how you can call in to your own application to get the completion data.&lt;/p&gt;
+&lt;div class="section" id="the-bash-part"&gt;
+&lt;h2&gt;The Bash Part&lt;/h2&gt;
+&lt;p&gt;I will start with the bash part of the script. This can be copied replacing just the name of your completion program and the commands to complete. It focuses on getting the important information out of bash completion and into your code.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="lineno"&gt; 1 &lt;/span&gt;_complete &lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+&lt;span class="lineno"&gt; 2 &lt;/span&gt;    &lt;span class="nb"&gt;local&lt;/span&gt; cur
+&lt;span class="lineno"&gt; 3 &lt;/span&gt;
+&lt;span class="lineno"&gt; 4 &lt;/span&gt;    &lt;span class="nv"&gt;cur&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;COMP_WORDS&lt;/span&gt;&lt;span class="p"&gt;[COMP_CWORD]&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;
+&lt;span class="lineno"&gt; 5 &lt;/span&gt;    &lt;span class="nv"&gt;words&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;./comp_blog.py &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$C&lt;/span&gt;&lt;span class="s2"&gt;OMP_CWORD&amp;quot;&lt;/span&gt; &lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;COMP_WORDS&lt;/span&gt;&lt;span class="p"&gt;[*]&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;
+&lt;span class="lineno"&gt; 6 &lt;/span&gt;
+&lt;span class="lineno"&gt; 7 &lt;/span&gt;    &lt;span class="nv"&gt;COMPREPLY&lt;/span&gt;&lt;span class="o"&gt;=(&lt;/span&gt; &lt;span class="k"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;compgen&lt;/span&gt; -W &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;words&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; -- &lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;cur&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt; &lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="lineno"&gt; 8 &lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="lineno"&gt; 9 &lt;/span&gt;
+&lt;span class="lineno"&gt;10 &lt;/span&gt;blog&lt;span class="o"&gt;(){&lt;/span&gt;
+&lt;span class="lineno"&gt;11 &lt;/span&gt;    &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;blog &lt;/span&gt;&lt;span class="nv"&gt;$*&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+&lt;span class="lineno"&gt;12 &lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="lineno"&gt;13 &lt;/span&gt;
+&lt;span class="lineno"&gt;14 &lt;/span&gt;&lt;span class="nb"&gt;complete&lt;/span&gt; -F _complete blog
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The above script is boilerplate code that gets the right values out of the completion variables and sends them through to your script. The arguments passed in are the all of the arguments currently on the commandline. &lt;tt class="docutils literal"&gt;cur&lt;/tt&gt; is used by the &lt;tt class="docutils literal"&gt;compgen&lt;/tt&gt; function to determine what the current word in the argument list is.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="the-python-part"&gt;
+&lt;h2&gt;The Python Part&lt;/h2&gt;
+&lt;p&gt;Time for the Python script. This will just implement a multi-level completion where previous terms dictate what future terms look like.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="lineno"&gt; 1 &lt;/span&gt;&lt;span class="ch"&gt;#!/usr/bin/python&lt;/span&gt;
+&lt;span class="lineno"&gt; 2 &lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;sys&lt;/span&gt;
+&lt;span class="lineno"&gt; 3 &lt;/span&gt;
+&lt;span class="lineno"&gt; 4 &lt;/span&gt;&lt;span class="n"&gt;options&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;span class="lineno"&gt; 5 &lt;/span&gt;        &lt;span class="s1"&gt;&amp;#39;add&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;--name&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;--date&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;--content&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+&lt;span class="lineno"&gt; 6 &lt;/span&gt;        &lt;span class="s1"&gt;&amp;#39;delete&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;--name&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;--force&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="lineno"&gt; 7 &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="lineno"&gt; 8 &lt;/span&gt;
+&lt;span class="lineno"&gt; 9 &lt;/span&gt;&lt;span class="n"&gt;commands&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;keys&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="lineno"&gt;10 &lt;/span&gt;
+&lt;span class="lineno"&gt;11 &lt;/span&gt;&lt;span class="n"&gt;index&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sys&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;argv&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt; &lt;span class="c1"&gt;# First argument is the index.&lt;/span&gt;
+&lt;span class="lineno"&gt;12 &lt;/span&gt;&lt;span class="nb"&gt;all&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;sys&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;argv&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;:]&lt;/span&gt;       &lt;span class="c1"&gt;# All others are the args.&lt;/span&gt;
+&lt;span class="lineno"&gt;13 &lt;/span&gt;
+&lt;span class="lineno"&gt;14 &lt;/span&gt;&lt;span class="c1"&gt;# If the list is shorter than the index of the current word&lt;/span&gt;
+&lt;span class="lineno"&gt;15 &lt;/span&gt;&lt;span class="c1"&gt;# then the current word is empty. Otherwise it is the last&lt;/span&gt;
+&lt;span class="lineno"&gt;16 &lt;/span&gt;&lt;span class="c1"&gt;# element in the list.&lt;/span&gt;
+&lt;span class="lineno"&gt;17 &lt;/span&gt;&lt;span class="n"&gt;cur&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;quot;&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;all&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="n"&gt;index&lt;/span&gt; &lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="nb"&gt;all&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;index&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="lineno"&gt;18 &lt;/span&gt;&lt;span class="n"&gt;prev&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;all&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;index&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="c1"&gt;# Item before the current.&lt;/span&gt;
+&lt;span class="lineno"&gt;19 &lt;/span&gt;&lt;span class="nb"&gt;all&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;all&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;:]&lt;/span&gt; &lt;span class="c1"&gt;# Strip off the command name from the beginning.&lt;/span&gt;
+&lt;span class="lineno"&gt;20 &lt;/span&gt;
+&lt;span class="lineno"&gt;21 &lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;prev&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;all&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;span class="lineno"&gt;22 &lt;/span&gt;    &lt;span class="c1"&gt;# prev must be the command itself. Return subcommands.&lt;/span&gt;
+&lt;span class="lineno"&gt;23 &lt;/span&gt;    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot; &amp;quot;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;join&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;commands&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="lineno"&gt;24 &lt;/span&gt;&lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;span class="lineno"&gt;25 &lt;/span&gt;    &lt;span class="c1"&gt;# Find the subcommands already present.&lt;/span&gt;
+&lt;span class="lineno"&gt;26 &lt;/span&gt;    &lt;span class="n"&gt;command_list&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;word&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;word&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;all&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;word&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;commands&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="lineno"&gt;27 &lt;/span&gt;    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;command_list&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;span class="lineno"&gt;28 &lt;/span&gt;        &lt;span class="c1"&gt;# Send back options of latest subcommand.&lt;/span&gt;
+&lt;span class="lineno"&gt;29 &lt;/span&gt;        &lt;span class="n"&gt;opts&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;command_list&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]]&lt;/span&gt;
+&lt;span class="lineno"&gt;30 &lt;/span&gt;        &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot; &amp;quot;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;join&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;opt&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;opt&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;opts&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;opt&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;all&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;span class="lineno"&gt;31 &lt;/span&gt;    &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;span class="lineno"&gt;32 &lt;/span&gt;        &lt;span class="c1"&gt;# No completions to be had.&lt;/span&gt;
+&lt;span class="lineno"&gt;33 &lt;/span&gt;        &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Note that the &lt;tt class="docutils literal"&gt;cur&lt;/tt&gt; variable isn't used but is provided in order to illustrate how to get the same value as in the bash script above. The &lt;tt class="docutils literal"&gt;all&lt;/tt&gt; variable contains all arguments, stripping out the name of the script (&lt;tt class="docutils literal"&gt;argv[0]&lt;/tt&gt;) and the name of the command being completed (i.e. &lt;tt class="docutils literal"&gt;blog&lt;/tt&gt; in this example.) This is a fairly simple multi-level script that has a list of options for the subcommands provided.&lt;/p&gt;
+&lt;p&gt;More complex scripts could be created - with much more ease and readability than if they had been written in bash. I have written a small command framework in Ruby which uses the Trollop option parser to parse the command line. Using the parser method in Trollop, it is fairly easy to create a program which defines subcommands, where those subcommands provide their own option parser. The Trollop parsers can be queried for the purposes of auto-completion. This may make up a future post.&lt;/p&gt;
+&lt;/div&gt;
+</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Anthony Roy</dc:creator><pubDate>Thu, 20 Feb 2014 22:50:00 +0000</pubDate><guid>tag:antroy.github.io,2014-02-20:Complex commandline completion in the bash shell.html</guid><category>coding</category><category>bash</category><category>autocomplete</category><category>python</category></item><item><title>Deploying with the Git Phoenix Script</title><link>https://antroy.github.io/Git%20push%20for%20code%20deployment%20using%20Puppet.html</link><description>&lt;p&gt;Git is a great tool for managing source code, and is very flexible in what you can do with it. Puppet is great for configuration management, and can be used to great effect for automating the provisioning of software onto machines.&lt;/p&gt;
+&lt;p&gt;I have been using puppet at work for a year or so now in the automation of server builds in our internal cloud. A few months ago I decided that it would make sense to use it at home to standardise my PC builds and make it easy to make changes to one machine and have that change propagate out to the others. I use git at home for my personal projects (Bitbucket for private stuff, GitHub for stuff I share) and one of the Puppet deployment methods that has come about in the last year or so is the so called Masterless Puppet, where code is pushed to a bunch of machines using git.&lt;/p&gt;
+&lt;p&gt;Incidentally this also works great for deploying arbitrary code - for example a website - to a bunch of servers.&lt;/p&gt;
+&lt;p&gt;The typical setup for this is as follows. For each machine you want to deploy to:&lt;/p&gt;
+&lt;ol class="arabic simple"&gt;
+&lt;li&gt;Set up an empty git repo with &lt;tt class="docutils literal"&gt;git init &lt;span class="pre"&gt;--bare&lt;/span&gt;&lt;/tt&gt;.&lt;/li&gt;
+&lt;li&gt;Write a git post-receive hook that will archive the current state of the repos master branch and unpack it in the puppet location, and then run puppet apply&lt;/li&gt;
+&lt;/ol&gt;
+&lt;pre class="literal-block"&gt;
+git archive --format=tar master | (cd /etc/puppet; tar -x)
+&lt;/pre&gt;
+&lt;p&gt;On your &amp;quot;master&amp;quot; machine - which with git being distributed can be any machine you happen to be developing on, you need to set up your remote. Add the following to the &lt;tt class="docutils literal"&gt;.git/config&lt;/tt&gt; file:&lt;/p&gt;
+&lt;pre class="literal-block"&gt;
+[remote webservers]
+    url = ssh://git&amp;#64;server1/puppet
+    url = ssh://git&amp;#64;server2/puppet
+&lt;/pre&gt;
+&lt;p&gt;This works pretty well. You deploy to each of the machines in your remotes list by simply running &lt;tt class="docutils literal"&gt;git push webservers&lt;/tt&gt; and git runs through the list of URLs in the remote and pushes to each.&lt;/p&gt;
+&lt;p&gt;The downside to this approach is if you want to roll back code. It would be nice to be able to roll back the master branch to a particular commit without a horde of messy revert commits. With git you can move the head back to a particular commit easily using &lt;tt class="docutils literal"&gt;git reset &lt;span class="pre"&gt;--hard&lt;/span&gt; a4d779c&lt;/tt&gt; for example, or to a tag if you have been tagging your code - &lt;tt class="docutils literal"&gt;git reset &lt;span class="pre"&gt;--hard&lt;/span&gt; 1.4.2&lt;/tt&gt;.&lt;/p&gt;
+&lt;p&gt;The issue is that git's post-receive hooks don't fire for this sort of change. Nothing is received, hence no hook is fired.&lt;/p&gt;
+&lt;div class="section" id="the-phoenix-script"&gt;
+&lt;h2&gt;The Phoenix Script&lt;/h2&gt;
+&lt;p&gt;Cue the Phoenix script, a post commit hook that destroys itself before rebuilding itself again from the ashes. It is in essence a post-receive hook which is held outside of the git repo and symlinked in, which performs the following steps when run.&lt;/p&gt;
+&lt;ol class="arabic simple"&gt;
+&lt;li&gt;Archive off the code to the relevant location as above.&lt;/li&gt;
+&lt;li&gt;Run puppet.&lt;/li&gt;
+&lt;li&gt;Delete the git repository.&lt;/li&gt;
+&lt;li&gt;Create a new bare repository in the same location.&lt;/li&gt;
+&lt;li&gt;Symlink itself into the .git/hooks directory.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;The code itself looks like this:&lt;/p&gt;
+&lt;pre class="literal-block"&gt;
+#!/bin/bash
+PHOENIX=/var/repos/phoenix.sh
+PUPPET_DIR=/etc/puppet
+GIT_REPO=/var/repos/puppet_code
+
+rm -rf $PUPPET_DIR/*
+cd $GIT_REPO
+git archive --format=tar master | (cd $PUPPET_DIR; tar -x)
+puppet apply $PUPPET_DIR/manifests/site.pp
+
+rm -rf $GIT_REPO
+mkdir $GIT_REPO
+cd $GIT_REPO
+git init --bare
+ln -s $PHOENIX $GIT_REPO/.git/hooks/post-receive
+&lt;/pre&gt;
+&lt;p&gt;This has the advantage that whenever you push, the code will get checked out and placed in the appropriate directory, even if no commits have been made, just references (i.e. the master pointer) has been moved.&lt;/p&gt;
+&lt;p&gt;The main disadvantage to this approach is that you are having to send the entire repo over to each server every time you push. This is not a major issue if your codebase is small, but with a large infrastructure and large puppet deployment this could take quite a lot of time.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="puppet-librarian-and-r10k"&gt;
+&lt;h2&gt;Puppet Librarian and R10K&lt;/h2&gt;
+&lt;p&gt;There are two tools which can mitigate this overhead, and have the advantage of organising your puppet modules in a better way than keeping everything in one repository. This method has three parts.&lt;/p&gt;
+&lt;p&gt;Firstly, you need to create a git repo for each module in your codebase. This step has several advantages by itself. Teams can work on different modules without treading on each others toes. Modules can be shared on GitHub or the like for other developers to use and enhance.&lt;/p&gt;
+&lt;p&gt;The second step is to create a Puppetfile which is effectively a shopping list of the modules you are interested in. You tell it which modules you want, their git locations if pulling directly from git (they are downloaded from the Puppetforge otherwise), and which version you want (for git repos this can be any arbitrary commit hash, branch or tag).&lt;/p&gt;
+&lt;p&gt;You then add a call to r10k from your Phoenix script. r10k reads the Puppetfile and will download all modules referenced into your modules directory.&lt;/p&gt;
+&lt;p&gt;The net effect of this is that the repo that I push to each server isn't the entire puppet codebase, but a small repo which contains a Puppetfile readable by the r10k tool and some hiera configuration. This means that the push always delivers the correct Puppetfile and hiera data, but the other modules that are brought in by r10k are cached. See &lt;a class="reference external" href="https://github.com/adrienthebo/r10k"&gt;https://github.com/adrienthebo/r10k&lt;/a&gt; for more details on r10k and &lt;a class="reference external" href="https://github.com/rodjek/librarian-puppet"&gt;https://github.com/rodjek/librarian-puppet&lt;/a&gt; for librarian puppet which was the project which first defined the Puppetfile and the method for pulling modules down from this definition.&lt;/p&gt;
+&lt;/div&gt;
+</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Anthony Roy</dc:creator><pubDate>Tue, 04 Feb 2014 08:14:00 +0000</pubDate><guid>tag:antroy.github.io,2014-02-04:Git push for code deployment using Puppet.html</guid><category>git</category><category>coding</category><category>deployment</category><category>puppet</category></item></channel></rss>
