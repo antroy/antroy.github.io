@@ -6,7 +6,7 @@ import sys, os
 
 AUTHOR = u'Anthony Roy'
 SITENAME = u'Anthony Roy'
-SITEURL = 'http://antroy.github.io'
+SITEURL = 'https://antroy.github.io'
 
 THEME = './theme/pelican-bootstrap3'
 BOOTSTRAP_THEME = 'cerulean'
